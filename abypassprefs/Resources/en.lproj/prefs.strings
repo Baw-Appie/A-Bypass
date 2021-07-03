@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Credits</key>
+	<string>Credits</string>
+
+	<key>Support A-Bypass</key>
+	<string>Support A-Bypass</string>
+
+	<key>Donate with PayPal</key>
+	<string>Donate with PayPal</string>
+
+	<key>Donate with KakaoPay</key>
+	<string>Donate with KakaoPay</string>
+
+	<key>Donate with Patreon</key>
+	<string>Donate with Patreon</string>
+
+	<key>A-Bypass Update</key>
+	<string>A-Bypass Update</string>
+	
+	<key>Check for updates</key>
+	<string>Check for updates</string>
+
+	<key>A-Bypass Version</key>
+	<string>A-Bypass Version</string>
+
+	<key>Always use the latest version for the best experience.</key>
+	<string>Always use the latest version for the best experience.</string>
+
+	<key>Ruleset Version</key>
+	<string>Ruleset Version</string>
+
+	<key>Live Patch Version</key>
+	<string>Live Patch Version</string>
+	
+	<key>The update server is not responding. Please try again later.</key>
+	<string>The update server is not responding. Please try again later.</string>
+	
+	<key>Latest version of A-Bypass is available. Please update A-Bypass from Cydia or Sileo</key>
+	<string>Latest version of A-Bypass is available. Please update A-Bypass from Cydia or Sileo</string>
+	
+	<key>Installed Applications</key>
+	<string>Installed Applications</string>
+	
+	<key>Check for updates</key>
+	<string>Check for updates</string>
+	
+	<key>Connect to Baw Repository File Share Service..</key>
+	<string>Connect to Baw Repository File Share Service..</string>
+	
+	<key>Failed to connect to Baw Repository File Share Service. Please try again.</key>
+	<string>Failed to connect to Baw Repository File Share Service. Please try again.</string>
+	
+	<key>Download updates</key>
+	<string>Download updates</string>
+	
+	<key>Already up to date. (%@)</key>
+	<string>Already up to date. (%@)</string>
+	
+	<key>Failed to download update. Please try again. (%@)</key>
+	<string>Failed to download update. Please try again. (%@)</string>
+	
+	<key>A-Bypass engine ruleset has been updated. (%@)</key>
+	<string>A-Bypass engine ruleset has been updated. (%@)</string>
+	
+	<key>Done</key>
+	<string>Done</string>
+
+	<key>Cancel</key>
+	<string>Cancel</string>
+
+	<key>Unsupported Device</key>
+	<string>Unsupported Device</string>
+
+	<key>Please use OdysseyRa1n instead of Checkra1n. Some features are disabled.</key>
+	<string>Please use OdysseyRa1n instead of Checkra1n. Some features are disabled.</string>
+	
+	<key>ABPolicy Error</key>
+	<string>ABPolicy Error</string>
+
+	<key>ABPolicy is misconfigured. Some features are disabled.</key>
+	<string>ABPolicy is misconfigured. Some features are disabled.</string>
+
+	<key>Some settings of A-Bypass are controlled by other tweak.</key>
+	<string>Some settings of A-Bypass are controlled by other tweak.</string>
+
+	<key>Compatibility</key>
+	<string>Compatibility</string>
+
+	<key>A-Bypass works best with libhooker and does not require these options. Please consider switching to Odyssey/Chimera. These options are applied after respring.</key>
+	<string>A-Bypass works best with libhooker and does not require these options. Please consider switching to Odyssey/Chimera. These options are applied after respring.</string>
+
+	<key>Disable ABSubLoader</key>
+	<string>Disable ABSubLoader</string>
+
+	<key>ABSubLoader loads A-Bypass instead of Substitute 2.0 to fix A-Bypass not working in some applications.</key>
+	<string>ABSubLoader loads A-Bypass instead of Substitute 2.0 to fix A-Bypass not working in some applications.</string>
+
+	<key>Advanced Settings</key>
+	<string>Advanced Settings</string>
+
+	<key>You are in danger zone.</key>
+	<string>You are in danger zone.</string>
+
+	<key>The advanced setting of A-Bypass is very powerful, but dangerous. If you're not sure what you're doing, don't change anything.</key>
+	<string>The advanced setting of A-Bypass is very powerful, but dangerous. If you're not sure what you're doing, don't change anything.</string>
+</dict>
+</plist>

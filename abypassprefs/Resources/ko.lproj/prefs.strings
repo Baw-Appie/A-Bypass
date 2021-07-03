@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Credits</key>
+	<string>크레딧</string>
+
+	<key>Support A-Bypass</key>
+	<string>A-Bypass 지원하기</string>
+
+	<key>Donate with PayPal</key>
+	<string>PayPal로 후원하기</string>
+
+	<key>Donate with KakaoPay</key>
+	<string>KakaoPay로 후원하기</string>
+
+	<key>Donate with Patreon</key>
+	<string>Patreon으로 후원하기</string>
+
+	<key>A-Bypass Update</key>
+	<string>A-Bypass 업데이트</string>
+	
+	<key>Check for updates</key>
+	<string>업데이트 확인</string>
+
+	<key>A-Bypass Version</key>
+	<string>A-Bypass 버전</string>
+
+	<key>Always use the latest version for the best experience.</key>
+	<string>최고의 경험을 위하여 항상 최신 버전을 사용하세요.</string>
+
+	<key>Ruleset Version</key>
+	<string>룰셋 버전</string>
+
+	<key>Live Patch Version</key>
+	<string>실시간 패치 버전</string>
+	
+	<key>The update server is not responding. Please try again later.</key>
+	<string>업데이트 서버가 응답하지 않습니다. 잠시 후 다시 시도하세요.</string>
+	
+	<key>Latest version of A-Bypass is available. Please update A-Bypass from Cydia or Sileo</key>
+	<string>최신 버전의 A-Bypass를 사용할 수 있습니다. Cydia 또는 Sileo에서 A-Bypass를 업데이트해주세요.</string>
+	
+	<key>Installed Applications</key>
+	<string>설치된 애플리케이션</string>
+	
+	<key>Check for updates</key>
+	<string>업데이트 확인</string>
+	
+	<key>Connect to Baw Repository File Share Service..</key>
+	<string>Baw Repository 파일 공유 서비스에 연결하는 중입니다..</string>
+	
+	<key>Failed to connect to Baw Repository File Share Service. Please try again.</key>
+	<string>Baw Repository 파일 공유 서비스에 연결할 수 없습니다. 다시 시도해주세요.</string>
+	
+	<key>Download updates</key>
+	<string>업데이트 다운로드</string>
+	
+	<key>Already up to date. (%@)</key>
+	<string>이미 최신입니다. (%@)</string>
+	
+	<key>Failed to download update. Please try again. (%@)</key>
+	<string>업데이트를 다운로드할 수 없습니다. 다시 시도해주세요. (%@)</string>
+	
+	<key>A-Bypass engine ruleset has been updated. (%@)</key>
+	<string>A-Bypass 엔진 룰셋이 업데이트되었습니다. (%@)</string>
+	
+	<key>Done</key>
+	<string>완료</string>
+
+	<key>Cancel</key>
+	<string>취소</string>
+
+	<key>Unsupported Device</key>
+	<string>지원되지 않는 기기</string>
+
+	<key>Please use OdysseyRa1n instead of Checkra1n. Some features are disabled.</key>
+	<string>Checkra1n 대신 OdysseyRa1n을 사용하세요. 일부 기능이 비활성화되었습니다.</string>
+	
+	<key>ABPolicy Error</key>
+	<string>ABPolicy 오류</string>
+
+	<key>ABPolicy is misconfigured. Some features are disabled.</key>
+	<string>ABPolicy가 잘못 구성되었습니다. 일부 기능이 비활성화되었습니다.</string>
+
+	<key>Some settings of A-Bypass are controlled by other tweak.</key>
+	<string>A-Bypass의 일부 설정이 다른 트윅에 의하여 제어되고 있습니다.</string>
+
+	<key>Compatibility</key>
+	<string>호환성</string>
+
+	<key>A-Bypass works best with libhooker and does not require these options. Please consider switching to Odyssey/Chimera. These options are applied after respring.</key>
+	<string>A-Bypass는 libhooker와 가장 잘 작동하며 이러한 옵션이 필요하지 않습니다. Odyssey/Chimera로 전환하는 것을 고려하세요. 이 옵션들은 리스프링 이후 적용됩니다.</string>
+
+	<key>Disable ABSubLoader</key>
+	<string>ABSubLoader 비활성화</string>
+
+	<key>ABSubLoader loads A-Bypass instead of Substitute 2.0 to fix A-Bypass not working in some applications.</key>
+	<string>ABSubLoader은 Substitute 2.0 업데이트로 인하여 일부 애플리케이션이 우회되지 않는 문제를 해결합니다.</string>
+
+	<key>Advanced Settings</key>
+	<string>고급 설정</string>
+
+	<key>You are in danger zone.</key>
+	<string>위험 구역에 진입했습니다.</string>
+
+	<key>The advanced setting of A-Bypass is very powerful, but dangerous. If you're not sure what you're doing, don't change anything.</key>
+	<string>A-Bypass의 고급 설정은 강력하지만, 위험합니다. 무엇을 하고 있는지 알지 못한다면, 아무것도 변경하지 마세요.</string>
+</dict>
+</plist>

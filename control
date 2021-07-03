@@ -1,0 +1,9 @@
+Package: com.rpgfarm.a-bypass
+Name: A-Bypass
+Depends: mobilesubstrate, com.muirey03.libmryipc, applist, com.rpgfarm.libaptoast, preferenceloader
+Version: 1.5.3
+Architecture: iphoneos-arm
+Description: Super Jailbreak detection bypass!
+Maintainer: Baw Appie <pp121324@gmail.com>
+Author: Baw Appie <pp121324@gmail.com>
+Section: Tweaks
