@@ -1967,7 +1967,7 @@ void remove6() {
     0xFFFFFFFF
   };
 
-  findSegment2(ix_sysCheck_gamehack_target, ix_sysCheck_gamehack_mask, sizeof(ix_sysCheck_gamehack_target)/sizeof(uint64_t), &patch6_1);
+  if(0)findSegment2(ix_sysCheck_gamehack_target, ix_sysCheck_gamehack_mask, sizeof(ix_sysCheck_gamehack_target)/sizeof(uint64_t), &patch6_1);
 
 }
 
