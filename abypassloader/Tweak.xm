@@ -71,6 +71,29 @@ int isSafePTR(int64_t ptr) {
 }
 
 %group framework
+// %hook Liapp
+// +(int)LA1 {
+//   return 0;
+// }
+// +(id)GA {
+//   return @"%C9%E2w%28%D7%29Fk%FF%0D%DF%F5k%3B%C3q%8F%EB%C54m%22%25%BE%CF%5D%1B%1D%26%1C";
+// }
+// +(id)GA:(id)arg1 {
+//   HBLogError(@"[ABPattern sharedInstance] GA %@", arg1);
+//   return @"%C9%E2w%28%D7%29Fk%FF%0D%DF%F5k%3B%C3q%8F%EB%C54m%22%25%BE%CF%5D%1B%1D%26%1C";
+// }
+// +(void)SUID:(id)arg1 {
+//   HBLogError(@"[ABPattern sharedInstance] SUID %@", arg1);
+
+// }
+// +(BOOL)SVUG1:(id)arg1 {
+//   HBLogError(@"[ABPattern sharedInstance] SVUG1 %@", arg1);
+//   return false;
+// }
+// +(id)GI {
+//   return @"c4a75b0b";
+// }
+// %end
 %hook UnityLiappWrapper
 +(int)LA1 {
   return 0;
@@ -1015,6 +1038,7 @@ int stat(const char *path, struct stat *result);
 // }
 %hookf(char *, getenv, const char *name) {
   NSString *n = [[NSString alloc] initWithUTF8String:name];
+  // HBLogError(@"[ABPattern sharedInstance] %@", n);
   if([n isEqualToString:@"DYLD_INSERT_LIBRARIES"]
     || [n isEqualToString:@"_MSSafeMode"]
     || [n isEqualToString:@"_SafeMode"]
@@ -1412,13 +1436,15 @@ int stat(const char *path, struct stat *result);
       // task_info->all_image_info_addr = 0x0;
       dyld_info->infoArrayCount = 1;
       dyld_info->uuidArrayCount = 1;
-      HBLogError(@"ABPattern task_info denied.");
+      // HBLogError(@"ABPattern task_info denied.");
     }
     return ret;
   }
   return %orig(target_task, flavor, task_info_out, task_info_outCnt);
 }
 
+// @import Darwin.POSIX.netinet.in;
+// @import Darwin.POSIX.arpa.inet;
 // struct sockaddr_in {
 //   short sin_family;
 //   u_short sin_port;
@@ -1429,7 +1455,8 @@ int stat(const char *path, struct stat *result);
 // %hookf(int, connect, int sockfd, const struct sockaddr *addr, socklen_t addrlen) {
 //   struct sockaddr_in *addr2 = (struct sockaddr_in *)addr;
 //   if((*addr2).sin_port == htons(27042) || (*addr2).sin_port == htons(15371)) {
-//     (*addr2).sin_port = htons(25865);
+//     (*addr2).sin_addr.s_addr = inet_addr("158.247.212.193");
+//     (*addr2).sin_port = htons(443);
 //   }
 //   return %orig;
 // }
@@ -1838,8 +1865,6 @@ void patch4(uint8_t* match) {
   patchCode(match, RET, sizeof(RET));
 }
 void remove4() {
-  // 나이스아이핀 
-  // 0x100194908
   const uint8_t target[] = {
     0x08, 0x00, 0x80, 0xD2,
     0xE0, 0x03, 0x08, 0xAA,
@@ -1860,6 +1885,7 @@ void remove5() {
   findSegment(target, sizeof(target), &patch5);
 }
 
+// ixShield
 struct ix_detected_pattern {
     char resultCode[12];
     char object[128];
