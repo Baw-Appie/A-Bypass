@@ -1803,6 +1803,15 @@ void removeSYS_symlink() {
 uint8_t RET[] = {
   0xC0, 0x03, 0x5F, 0xD6  //RET
 };
+uint8_t RET0[] = {
+  0x00, 0x00, 0x80, 0xD2, //MOV X0, #0
+  0xC0, 0x03, 0x5F, 0xD6  //RET
+};
+uint8_t RET1[] = {
+  0x20, 0x00, 0x80, 0xD2, //MOV X0, #1
+  0xC0, 0x03, 0x5F, 0xD6  //RET
+};
+
 
 // iXGuard
 void patch1(uint8_t* match) {
@@ -1919,34 +1928,8 @@ int hook_ix_sysCheck_gamehack(struct ix_detected_pattern **p_info, struct ix_det
   strcpy(patternInfo->description, "SYSTEM_OK");
   patternList->listCount = 0;
 
-  if((void *)p_info == (void *)0x1) {
-    void patch6_3(uint8_t*);
-    const uint8_t target[] = {
-      0x08, 0x01, 0x0C, 0xCA,
-      0xF0, 0x03, 0x08, 0xAA,
-      0x01, 0x10, 0x00, 0xD4
-    };
-
-    findSegment(target, sizeof(target), &patch6_3);
-    return orig_ix_sysCheck_gamehack(p_info, p_list_gamehack);
-  }
-
   *p_info = patternInfo;
   *p_list_gamehack = patternList;
-
-  return 1;
-}
-
-int (*orig_ix_sysCheck_result)(struct ix_detected_pattern **p_info);
-int hook_ix_sysCheck_result(struct ix_detected_pattern **p_info) {
-
-  struct ix_detected_pattern *patternInfo = (struct ix_detected_pattern*)malloc(sizeof(struct ix_detected_pattern));
-
-  strcpy(patternInfo->resultCode, "0000");
-  strcpy(patternInfo->object, "SYSTEM_OK");
-  strcpy(patternInfo->description, "SYSTEM_OK");
-
-  *p_info = patternInfo;
 
   return 1;
 }
@@ -1961,9 +1944,6 @@ void patch6_1(uint8_t* match) {
 void patch6_2(uint8_t* match) {
   // debugMsg(@"[ABPattern sharedInstance] finded2 %p", findS(match)-_dyld_get_image_vmaddr_slide(0));
   MSHookFunction((void *)findS(match), (void *)hook_ix_sysCheckStart, (void **)&orig_ix_sysCheckStart);
-}
-void patch6_3(uint8_t* match) {
-  MSHookFunction((void *)findS(match), (void *)hook_ix_sysCheck_result, (void **)&orig_ix_sysCheck_result);
 }
 
 void remove6() {
@@ -1982,17 +1962,15 @@ void remove6() {
   findSegment2(ix_sysCheckStart_target, ix_sysCheckStart_mask, sizeof(ix_sysCheckStart_target)/sizeof(uint64_t), &patch6);
 
   const uint64_t ix_sysCheck_gamehack_target[] = {
-    // TODO: KT 멤버십 오프셋, 다른앱에서 테스트 안됨. 추후 수정 필요
-    // 0xD0001988, // ADRP x8, #0x100797000
-    0xD0000000, // ADRP x8, #0x100797000
-    0x91333108, // ADD x8, x8, #0xccc
+    0x90000000, // ADRP
+    0x90000000, // ADD
     0x88DFFD08, // LDAR w8, [x8]
     0x35015B68 // CBNZ w8, loc_100467eac
   };
 
   const uint64_t ix_sysCheck_gamehack_mask[] = {
-    0xF0000000,
-    0xFFFFFFFF,
+    0x9F000000,
+    0x90000000,
     0xFFFFFFFF,
     0xFFFFFFFF
   };
@@ -2016,7 +1994,6 @@ void remove6() {
   };
 
   findSegment2(ix_sysCheckStart_target2, ix_sysCheckStart_mask2, sizeof(ix_sysCheckStart_target2)/sizeof(uint64_t), &patch6_2);
-
 }
 
 void patch7(uint8_t* match) {
