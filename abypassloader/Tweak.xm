@@ -1978,7 +1978,7 @@ void remove6() {
   findSegment2(ix_sysCheck_gamehack_target, ix_sysCheck_gamehack_mask, sizeof(ix_sysCheck_gamehack_target)/sizeof(uint64_t), &patch6_1);
 
   const uint64_t ix_sysCheckStart_target2[] = {
-    0xF0000000, // ADRP
+    0x90000000, // ADRP
     0x90000000, // ADD
     0x88DFFD08, // LDAR w8, [x8]
     0xF81903A0, // STUR x0, [x29, var_70]
@@ -1986,7 +1986,7 @@ void remove6() {
   };
 
   const uint64_t ix_sysCheckStart_mask2[] = {
-    0xF0000000,
+    0x9F000000,
     0x90000000,
     0xFFFFFFFF,
     0xFFFFFFFF,
