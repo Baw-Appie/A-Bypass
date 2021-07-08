@@ -1945,6 +1945,9 @@ void patch6_2(uint8_t* match) {
   // debugMsg(@"[ABPattern sharedInstance] finded2 %p", findS(match)-_dyld_get_image_vmaddr_slide(0));
   MSHookFunction((void *)findS(match), (void *)hook_ix_sysCheckStart, (void **)&orig_ix_sysCheckStart);
 }
+void patch6_3(uint8_t* match) {
+  patchCode(findS(match), RET, sizeof(RET));
+}
 
 void remove6() {
   const uint64_t ix_sysCheckStart_target[] = {
@@ -1994,6 +1997,27 @@ void remove6() {
   };
 
   findSegment2(ix_sysCheckStart_target2, ix_sysCheckStart_mask2, sizeof(ix_sysCheckStart_target2)/sizeof(uint64_t), &patch6_2);
+
+
+  const uint64_t ix_sysCheck_crash_target[] = {
+    0x71000D1F, // CMP w8, #3
+    0x1A9F27E8, // CSET W8, CC
+    0x90000000, // ADRP
+    0x39000000, // STRB w*, [x*] //LDRB
+    0x7100013F, // CMP w9, #0
+    0x1A9F17E9  // CSET w9, EQ
+  };
+
+  const uint64_t ix_sysCheck_crash_mask[] = {
+    0xFFFFFFFF,
+    0xFFFFFFFF,
+    0x9F000000,
+    0xFF000000,
+    0xFFFFFFFF,
+    0xFFFFFFFF
+  };
+
+  findSegment2(ix_sysCheck_crash_target, ix_sysCheck_crash_mask, sizeof(ix_sysCheck_crash_target)/sizeof(uint64_t), &patch6_3);
 }
 
 void patch7(uint8_t* match) {
