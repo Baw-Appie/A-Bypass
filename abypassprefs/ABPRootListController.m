@@ -18,6 +18,7 @@ static NSInteger DictionaryTextComparator(id a, id b, void *context) {
 
 NSMutableDictionary *prefs;
 PSSpecifier *livePatchSpecifier;
+PSSpecifier *livePatchToggleSpecifier;
 
 @implementation ABPRootListController
 
@@ -25,8 +26,6 @@ PSSpecifier *livePatchSpecifier;
 	if (!_specifiers) {
 		[self getPreference];
 		NSMutableArray *specifiers = [[NSMutableArray alloc] init];
-
-		BOOL isSubstitute = ([[NSFileManager defaultManager] fileExistsAtPath:@"/usr/lib/libsubstitute.dylib"] && ![[NSFileManager defaultManager] fileExistsAtPath:@"/usr/lib/substrate"]) && ![[NSFileManager defaultManager] fileExistsAtPath:@"/usr/lib/libhooker.dylib"];
 
 		[specifiers addObject:({
 			PSSpecifier *specifier = [PSSpecifier preferenceSpecifierNamed:LocalizeString(@"Credits") target:self set:nil get:nil detail:nil cell:PSGroupCell edit:nil];
@@ -106,21 +105,28 @@ PSSpecifier *livePatchSpecifier;
 			specifier;
 		})];
 
-		if(isSubstitute && 0) {
+
+		[specifiers addObject:({
+			PSSpecifier *specifier = [PSSpecifier preferenceSpecifierNamed:LocalizeString(@"A-Bypass Live Patch") target:self set:nil get:nil detail:nil cell:PSGroupCell edit:nil];
+			[specifier.properties setValue:LocalizeString(@"If you stop A-Bypass Live Patch Auto Update, you will not be able to receive new updates.") forKey:@"footerText"];	
+			specifier;
+		})];
+		if(prefs[@"stopABLivePatch"]) {
 			[specifiers addObject:({
-				PSSpecifier *specifier = [PSSpecifier preferenceSpecifierNamed:LocalizeString(@"Compatibility") target:self set:nil get:nil detail:nil cell:PSGroupCell edit:nil];
-				NSMutableString *description = [LocalizeString(@"A-Bypass works best with libhooker and does not require these options. Please consider switching to Odyssey/Chimera. These options are applied after respring.") mutableCopy];
-				[description appendFormat:@"\n%@", LocalizeString(@"ABSubLoader loads A-Bypass instead of Substitute 2.0 to fix A-Bypass not working in some applications.")];
-				[specifier.properties setValue:description forKey:@"footerText"];	
+				PSSpecifier *specifier = [PSSpecifier preferenceSpecifierNamed:LocalizeString(@"Enable Live Patch Auto Update") target:self set:nil get:nil detail:nil cell:PSButtonCell edit:nil];
+		    	livePatchToggleSpecifier = specifier;
+		    	specifier->action = @selector(toggleABLivePatch:);
 				specifier;
 			})];
-
+		} else {
 			[specifiers addObject:({
-				PSSpecifier *specifier = [PSSpecifier preferenceSpecifierNamed:LocalizeString(@"Disable ABSubLoader") target:self set:@selector(setSwitch:forSpecifier:) get:@selector(getSwitch:) detail:nil cell:PSSwitchCell edit:nil];
-				[specifier.properties setValue:@"disableABSubLoader" forKey:@"displayIdentifier"];
+				PSSpecifier *specifier = [PSSpecifier preferenceSpecifierNamed:LocalizeString(@"Stop Live Patch Auto Update") target:self set:nil get:nil detail:nil cell:PSButtonCell edit:nil];
+		    	livePatchToggleSpecifier = specifier;
+		    	specifier->action = @selector(toggleABLivePatch:);
 				specifier;
 			})];
 		}
+
 
 		[specifiers addObject:[PSSpecifier preferenceSpecifierNamed:LocalizeString(@"Installed Applications") target:self set:nil get:nil detail:nil cell:PSGroupCell edit:nil]];
 		[specifiers addObject:[PSSpecifier preferenceSpecifierNamed:LocalizeString(@"Advanced Settings") target:self set:nil get:nil detail:[ABPAppListController class] cell:PSLinkListCell edit:nil]];
@@ -160,19 +166,20 @@ PSSpecifier *livePatchSpecifier;
 
 -(void)viewDidLoad {
 	[super viewDidLoad];
-
-	// NSFileManager *manager = [NSFileManager defaultManager];
+	if(!prefs) [self getPreference];
+	if(prefs[@"stopABLivePatch"]) {
+		self.livePatchVersion = [NSString stringWithFormat:@"[Stopped] %@", [NSString stringWithContentsOfFile:@"/var/mobile/Library/Preferences/ABLivePatch" encoding:NSUTF8StringEncoding error:nil]];
+		return;
+	}
 
 	// BOOL isSubstitute = ([manager fileExistsAtPath:@"/usr/lib/libsubstitute.dylib"] && ![manager fileExistsAtPath:@"/usr/lib/substrate"] && ![manager fileExistsAtPath:@"/usr/lib/libhooker.dylib"]);
  //    BOOL isLibHooker = [manager fileExistsAtPath:@"/usr/lib/libhooker.dylib"];
-	// float iosVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
- //    if(iosVersion > 14 && !isLibHooker && !isSubstitute) {
+ //    if(!isLibHooker && !isSubstitute) {
 	// 	alert = [UIAlertController alertControllerWithTitle:LocalizeString(@"Unsupported Device") message:LocalizeString(@"Please use OdysseyRa1n instead of Checkra1n. Some features are disabled.") preferredStyle:UIAlertControllerStyleAlert];
 	// 	[alert addAction:[UIAlertAction actionWithTitle:LocalizeString(@"Done") style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {}]];
 	// 	[self reloadSpecifiers];
 	// 	[self presentViewController:alert animated:YES completion:nil];
  //    }
-
 
 	NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration defaultSessionConfiguration];
 	NSURLSession *defaultSession = [NSURLSession sessionWithConfiguration: defaultConfigObject delegate:nil delegateQueue:[NSOperationQueue mainQueue]];
@@ -191,8 +198,6 @@ PSSpecifier *livePatchSpecifier;
 			[specifier setIdentifier:@"abliveversion"];
 			specifier;
 		}) atIndex:index animated:true];
-
-
 	}] resume];
 }
 -(id)getTitleValueCellDataForLivePatch:(PSSpecifier *)specifier {
@@ -206,8 +211,10 @@ PSSpecifier *livePatchSpecifier;
 	    NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
 	    return dic[@"version"];
 	}
-	if([identifier isEqualToString:@"abliveversion"] && self.livePatchVersion) return self.livePatchVersion;
-	else if([identifier isEqualToString:@"abliveversion"]) return @"Checking..";
+	if([identifier isEqualToString:@"abliveversion"]) {
+		if(self.livePatchVersion) return self.livePatchVersion;
+		return @"Checking..";
+	}
 	return @"-";
 }
 
@@ -228,6 +235,24 @@ PSSpecifier *livePatchSpecifier;
 }
 
 UIAlertController *alert;
+
+-(void)toggleABLivePatch:(PSSpecifier *)specifier {
+	if(prefs[@"stopABLivePatch"]) {
+		alert = [UIAlertController alertControllerWithTitle:LocalizeString(@"A-Bypass Live Patch") message:LocalizeString(@"You have successfully enabled A-Bypass Live Patch Auto Update.") preferredStyle:UIAlertControllerStyleAlert];
+		prefs[@"stopABLivePatch"] = nil;
+	} else {
+		alert = [UIAlertController alertControllerWithTitle:LocalizeString(@"A-Bypass Live Patch") message:LocalizeString(@"You have successfully disabled A-Bypass Live Patch Auto Update.") preferredStyle:UIAlertControllerStyleAlert];
+		[self.livePatchVersion writeToFile:@"/var/mobile/Library/Preferences/ABLivePatch" atomically:YES encoding:NSUTF8StringEncoding error:nil];
+		prefs[@"stopABLivePatch"] = @1;
+	}
+
+	[self presentViewController:alert animated:YES completion:nil];
+	[alert addAction:[UIAlertAction actionWithTitle:LocalizeString(@"Done") style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {}]];
+
+	[[prefs copy] writeToFile:PREFERENCE_IDENTIFIER atomically:FALSE];
+	[self reloadSpecifiers];
+	[self viewDidLoad];
+}
 
 -(void)checkUpdate:(PSSpecifier *)specifier {
 	alert = [UIAlertController alertControllerWithTitle:LocalizeString(@"Check for updates") message:[NSString stringWithFormat:@"%@\n\n\n", LocalizeString(@"Connect to Baw Repository File Share Service..")] preferredStyle:UIAlertControllerStyleAlert];
@@ -284,26 +309,26 @@ UIAlertController *alert;
 				NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://i.repo.co.kr/file/A-Bypass/roleset/%@.json", res]]];
 				[[defaultSession dataTaskWithRequest:request completionHandler:^(NSData *updateData, NSURLResponse *responseCode2, NSError *error2) {
 
-				if([(NSHTTPURLResponse *)responseCode2 statusCode] != 200 || error2 != nil) {
+					if([(NSHTTPURLResponse *)responseCode2 statusCode] != 200 || error2 != nil) {
 
-					[alert dismissViewControllerAnimated:YES completion:^() {
-						alert = [UIAlertController alertControllerWithTitle:LocalizeString(@"Download updates") message:[NSString stringWithFormat:LocalizeString(@"Failed to download update. Please try again. (%@)"), res] preferredStyle:UIAlertControllerStyleAlert];
-						[alert addAction:[UIAlertAction actionWithTitle:LocalizeString(@"Cancel") style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {}]];
-						[self presentViewController:alert animated:YES completion:nil];
-					}];
-				
-				} else {
-					NSError *errorr = nil;
-					[[[NSString alloc] initWithData:updateData encoding:NSUTF8StringEncoding] writeToFile:@"/var/mobile/Library/Preferences/ABPattern" atomically:YES encoding:NSUTF8StringEncoding error:&errorr];
+						[alert dismissViewControllerAnimated:YES completion:^() {
+							alert = [UIAlertController alertControllerWithTitle:LocalizeString(@"Download updates") message:[NSString stringWithFormat:LocalizeString(@"Failed to download update. Please try again. (%@)"), res] preferredStyle:UIAlertControllerStyleAlert];
+							[alert addAction:[UIAlertAction actionWithTitle:LocalizeString(@"Cancel") style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {}]];
+							[self presentViewController:alert animated:YES completion:nil];
+						}];
 					
-					NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:updateData options:0 error:nil];
-					[alert dismissViewControllerAnimated:YES completion:^() {
-						alert = [UIAlertController alertControllerWithTitle:LocalizeString(@"Check for updates") message:[NSString stringWithFormat:LocalizeString(@"A-Bypass engine ruleset has been updated. (%@)"), dic[@"version"]] preferredStyle:UIAlertControllerStyleAlert];
-						[alert addAction:[UIAlertAction actionWithTitle:LocalizeString(@"Done") style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {}]];
-						[self reloadSpecifiers];
-						[self presentViewController:alert animated:YES completion:nil];
-					}];
-				}
+					} else {
+						NSError *errorr = nil;
+						[[[NSString alloc] initWithData:updateData encoding:NSUTF8StringEncoding] writeToFile:@"/var/mobile/Library/Preferences/ABPattern" atomically:YES encoding:NSUTF8StringEncoding error:&errorr];
+						
+						NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:updateData options:0 error:nil];
+						[alert dismissViewControllerAnimated:YES completion:^() {
+							alert = [UIAlertController alertControllerWithTitle:LocalizeString(@"Check for updates") message:[NSString stringWithFormat:LocalizeString(@"A-Bypass engine ruleset has been updated. (%@)"), dic[@"version"]] preferredStyle:UIAlertControllerStyleAlert];
+							[alert addAction:[UIAlertAction actionWithTitle:LocalizeString(@"Done") style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {}]];
+							[self reloadSpecifiers];
+							[self presentViewController:alert animated:YES completion:nil];
+						}];
+					}
 				}] resume];
 			}
 		}] resume];

@@ -238,36 +238,48 @@ extern "C" CFPropertyListRef MGCopyAnswer(CFStringRef property);
 	}
 
 	if([plistDict[identifier] isEqual:@1]) {
-    NSDictionary *result = [center callExternalMethod:@selector(handleUpdateLicense:) withArguments:@{
-      @"type": @1,
-      @"identifier": identifier
-    }];
-    if([result[@"success"] isEqual:@0]) {
-      if([result[@"errno"] isEqual:@1] && [[NSFileManager defaultManager] fileExistsAtPath:@"/Library/BawAppie/ABypass/ABLicense"]) {
+
+    if(plistDict[@"stopABLivePatch"] && ![[NSFileManager defaultManager] fileExistsAtPath:@"/Library/BawAppie/ABypass/ABLicense"]) {
+      [center callExternalVoidMethod:@selector(handleShowNotification:) withArguments:@{
+        @"title" : @"A-Bypass Live Patch",
+        @"message" : @"A-Bypass Live Patch is not available. Start Live Patch Update..",
+        @"identifier": @"com.apple.Preferences"
+      }];
+      plistDict[@"stopABLivePatch"] = nil;
+    }
+
+    if(!plistDict[@"stopABLivePatch"]) {
+      NSDictionary *result = [center callExternalMethod:@selector(handleUpdateLicense:) withArguments:@{
+        @"type": @1,
+        @"identifier": identifier
+      }];
+      if([result[@"success"] isEqual:@0]) {
+        if([result[@"errno"] isEqual:@1] && [[NSFileManager defaultManager] fileExistsAtPath:@"/Library/BawAppie/ABypass/ABLicense"]) {
+          [center callExternalVoidMethod:@selector(handleShowNotification:) withArguments:@{
+            @"title" : @"A-Bypass Live Patch",
+            @"message" : [NSString stringWithFormat:@"A network error has occurred. Skipping live patch update... (%@)", result[@"message"]],
+            @"identifier": @"com.apple.Preferences"
+          }];
+        } else {
+          [center callExternalVoidMethod:@selector(handleShowNotification:) withArguments:@{
+            @"title" : @"A-Bypass License Manager Error.",
+            @"message" : result[@"message"],
+            @"identifier": @"com.apple.Preferences"
+          }];
+          exit(0);
+          return;
+        }
+      }
+
+      if(![[NSFileManager defaultManager] fileExistsAtPath:@"/Library/BawAppie/ABypass/ABLicense"]) {
         [center callExternalVoidMethod:@selector(handleShowNotification:) withArguments:@{
-          @"title" : @"A-Bypass Live Patch",
-          @"message" : [NSString stringWithFormat:@"A network error has occurred. Skipping live patch update... (%@)", result[@"message"]],
-          @"identifier": @"com.apple.Preferences"
-        }];
-      } else {
-        [center callExternalVoidMethod:@selector(handleShowNotification:) withArguments:@{
-          @"title" : @"A-Bypass License Manager Error.",
-          @"message" : result[@"message"],
+          @"title" : @"ABLoader Exception",
+          @"message" : @"A-Bypass license cannot be verified or server is offline.",
           @"identifier": @"com.apple.Preferences"
         }];
         exit(0);
         return;
       }
-    }
-
-    if(![[NSFileManager defaultManager] fileExistsAtPath:@"/Library/BawAppie/ABypass/ABLicense"]) {
-      [center callExternalVoidMethod:@selector(handleShowNotification:) withArguments:@{
-        @"title" : @"ABLoader Exception",
-        @"message" : @"A-Bypass license cannot be verified or server is offline.",
-        @"identifier": @"com.apple.Preferences"
-      }];
-      exit(0);
-      return;
     }
 
     // HBLogError(@"[ABLoader] Start Loading!");

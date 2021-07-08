@@ -106,5 +106,23 @@
 
 	<key>The advanced setting of A-Bypass is very powerful, but dangerous. If you're not sure what you're doing, don't change anything.</key>
 	<string>The advanced setting of A-Bypass is very powerful, but dangerous. If you're not sure what you're doing, don't change anything.</string>
+
+	<key>A-Bypass Live Patch</key>
+	<string>A-Bypass Live Patch</string>
+
+	<key>If you stop A-Bypass Live Patch Auto Update, you will not be able to receive new updates.</key>
+	<string>If you stop A-Bypass Live Patch Auto Update, you will not be able to receive new updates.</string>
+
+	<key>Enable Live Patch Auto Update</key>
+	<string>Enable Live Patch Auto Update</string>
+
+	<key>Stop Live Patch Auto Update</key>
+	<string>Stop Live Patch Auto Update</string>
+
+	<key>You have successfully enabled A-Bypass Live Patch Auto Update.</key>
+	<string>You have successfully enabled A-Bypass Live Patch Auto Update.</string>
+
+	<key>You have successfully disabled A-Bypass Live Patch Auto Update.</key>
+	<string>You have successfully disabled A-Bypass Live Patch Auto Update.</string>
 </dict>
 </plist>

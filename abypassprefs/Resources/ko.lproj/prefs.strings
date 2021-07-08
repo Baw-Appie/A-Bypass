@@ -106,5 +106,23 @@
 
 	<key>The advanced setting of A-Bypass is very powerful, but dangerous. If you're not sure what you're doing, don't change anything.</key>
 	<string>A-Bypass의 고급 설정은 강력하지만, 위험합니다. 무엇을 하고 있는지 알지 못한다면, 아무것도 변경하지 마세요.</string>
+
+	<key>A-Bypass Live Patch</key>
+	<string>A-Bypass 실시간 패치</string>
+
+	<key>If you stop A-Bypass Live Patch Auto Update, you will not be able to receive new updates.</key>
+	<string>A-Bypass 실시간 패치 자동 업데이트를 중단하면, 새 업데이트를 받지 못하게 됩니다.</string>
+
+	<key>Enable Live Patch Auto Update</key>
+	<string>실시간 패치 자동 업데이트 활성화</string>
+
+	<key>Stop Live Patch Auto Update</key>
+	<string>실시간 패치 자동 업데이트 중단</string>
+
+	<key>You have successfully enabled A-Bypass Live Patch Auto Update.</key>
+	<string>성공적으로 A-Bypass 실시간 패치 자동 업데이트를 활성화했습니다.</string>
+
+	<key>You have successfully disabled A-Bypass Live Patch Auto Update.</key>
+	<string>성공적으로 A-Bypass 실시간 패치 자동 업데이트를 비활성화했습니다.</string>
 </dict>
 </plist>
