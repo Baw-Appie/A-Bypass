@@ -1939,15 +1939,10 @@ int hook_ix_sysCheck_gamehack(struct ix_detected_pattern **p_info, struct ix_det
   return 1;
 }
 
-int (*orig_ix_sysCheck_integrity)(void *arg1, struct ix_verify_info **p_integrity_info);
-int hook_ix_sysCheck_integrity(void *arg1, struct ix_verify_info **p_integrity_info) {
-  struct ix_verify_info *verifyInfo = (struct ix_verify_info*)malloc(sizeof(struct ix_verify_info));
-
-  strcpy(verifyInfo->verify_result, "VERIFY_SUCC");
-  strcpy(verifyInfo->verify_data, "SYSTEM_OK");
-
-  *p_integrity_info = verifyInfo;
-
+int (*orig_ix_sysCheck_integrity)(void **arg1, struct ix_verify_info *p_integrity_info);
+int hook_ix_sysCheck_integrity(void **arg1, struct ix_verify_info *p_integrity_info) {
+  strcpy(p_integrity_info->verify_result, "VERIFY_SUCC");
+  strcpy(p_integrity_info->verify_data, "");
   return 1;
 }
 
@@ -1964,7 +1959,7 @@ void patch6_2(uint8_t* match) {
   MSHookFunction((void *)findS(match), (void *)hook_ix_sysCheckStart, (void **)&orig_ix_sysCheckStart);
 }
 void patch6_3(uint8_t* match) {
-  // debugMsg(@"[ABPattern sharedInstance] finded3 %p", findS(match)-_dyld_get_image_vmaddr_slide(0));
+  debugMsg(@"[ABPattern sharedInstance] finded3 %p", findS(match)-_dyld_get_image_vmaddr_slide(0));
   MSHookFunction((void *)findS(match), (void *)hook_ix_sysCheck_integrity, (void **)&orig_ix_sysCheck_integrity);
 }
 void patch6_5(uint8_t* match) {
@@ -2028,6 +2023,13 @@ void remove6() {
     0x350050C8
   };
 
+  const uint64_t ix_sysCheck_integrity_target2[] = {
+    0x90000000, // ADRP
+    0x90000000, // ADD
+    0x8808FCDF,
+    0x35C85000
+  };
+
   const uint64_t ix_sysCheck_integrity_mask[] = {
     0x9F000000,
     0x90000000,
@@ -2035,7 +2037,8 @@ void remove6() {
     0xFFFFFFFF
   };
 
-  findSegment2(ix_sysCheck_integrity_target, ix_sysCheck_integrity_mask, sizeof(ix_sysCheckStart_target)/sizeof(uint64_t), &patch6_3);
+  findSegment2(ix_sysCheck_integrity_target, ix_sysCheck_integrity_mask, sizeof(ix_sysCheck_integrity_target)/sizeof(uint64_t), &patch6_3);
+  findSegment2(ix_sysCheck_integrity_target2, ix_sysCheck_integrity_mask, sizeof(ix_sysCheck_integrity_target2)/sizeof(uint64_t), &patch6_3);
 
   const uint64_t ix_sysCheck_crash_target[] = {
     0x71000D1F, // CMP w8, #3
