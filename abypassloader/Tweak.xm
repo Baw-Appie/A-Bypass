@@ -186,11 +186,11 @@ int isSafePTR(int64_t ptr) {
   return false;
 }
 %end
-%hook iXDetectedPattern
--(NSString *)pattern_type_id {
-  return @"0000";
-}
-%end
+// %hook iXDetectedPattern
+// -(NSString *)pattern_type_id {
+//   return @"0000";
+// }
+// %end
 // %hook NSFastEnumeration
 // - (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id)buffer count:(NSUInteger)len {
 //   HBLogError(@"[ABPattern sharedInstance] %@", buffer);
@@ -1959,10 +1959,11 @@ void patch6_2(uint8_t* match) {
   MSHookFunction((void *)findS(match), (void *)hook_ix_sysCheckStart, (void **)&orig_ix_sysCheckStart);
 }
 void patch6_3(uint8_t* match) {
-  debugMsg(@"[ABPattern sharedInstance] finded3 %p", findS(match)-_dyld_get_image_vmaddr_slide(0));
+  // debugMsg(@"[ABPattern sharedInstance] finded3 %p", findS(match)-_dyld_get_image_vmaddr_slide(0));
   MSHookFunction((void *)findS(match), (void *)hook_ix_sysCheck_integrity, (void **)&orig_ix_sysCheck_integrity);
 }
 void patch6_5(uint8_t* match) {
+  // debugMsg(@"[ABPattern sharedInstance] finded5 %p", match-_dyld_get_image_vmaddr_slide(0));
   patchCode(findS(match), RET, sizeof(RET));
 }
 
@@ -2041,19 +2042,15 @@ void remove6() {
   findSegment2(ix_sysCheck_integrity_target2, ix_sysCheck_integrity_mask, sizeof(ix_sysCheck_integrity_target2)/sizeof(uint64_t), &patch6_3);
 
   const uint64_t ix_sysCheck_crash_target[] = {
-    0x71000D1F, // CMP w8, #3
-    0x1A9F27E8, // CSET W8, CC
     0x90000000, // ADRP
-    0x39000000, // STRB w*, [x*] //LDRB
-    0x7100013F, // CMP w9, #0
-    0x1A9F17E9  // CSET w9, EQ
+    0x90000000, // ADD
+    0x88DFFD08,
+    0x35005068
   };
 
   const uint64_t ix_sysCheck_crash_mask[] = {
-    0xFFFFFFFF,
-    0xFFFFFFFF,
     0x9F000000,
-    0xFF000000,
+    0x90000000,
     0xFFFFFFFF,
     0xFFFFFFFF
   };
