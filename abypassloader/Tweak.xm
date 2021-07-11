@@ -1425,23 +1425,20 @@ int stat(const char *path, struct stat *result);
   return %orig;
 }
 
-%hookf(kern_return_t, task_info, task_name_t target_task, task_flavor_t flavor, task_info_t task_info_out, mach_msg_type_number_t *task_info_outCnt) {   
-  // debugMsg(@"[ABAB] task_info %u", flavor);
-  if (flavor == TASK_DYLD_INFO) {
-    kern_return_t ret = %orig(target_task, flavor, task_info_out, task_info_outCnt);
-    if (ret == KERN_SUCCESS) {
-      struct task_dyld_info *task_info = (struct task_dyld_info *) task_info_out;
-      struct dyld_all_image_infos *dyld_info = (struct dyld_all_image_infos *) task_info->all_image_info_addr;
-      // debugMsg(@"[ABAB] task_info->all_image_info_addr %llu", task_info->all_image_info_addr);
-      // task_info->all_image_info_addr = 0x0;
-      dyld_info->infoArrayCount = 1;
-      dyld_info->uuidArrayCount = 1;
-      // HBLogError(@"ABPattern task_info denied.");
-    }
-    return ret;
-  }
-  return %orig(target_task, flavor, task_info_out, task_info_outCnt);
-}
+// TODO: 나중에 제대로 제거하도록 패치
+// %hookf(kern_return_t, task_info, task_name_t target_task, task_flavor_t flavor, task_info_t task_info_out, mach_msg_type_number_t *task_info_outCnt) {
+//   if (flavor == TASK_DYLD_INFO) {
+//     kern_return_t ret = %orig(target_task, flavor, task_info_out, task_info_outCnt);
+//     if (ret == KERN_SUCCESS) {
+//       struct task_dyld_info *task_info = (struct task_dyld_info *) task_info_out;
+//       struct dyld_all_image_infos *dyld_info = (struct dyld_all_image_infos *) task_info->all_image_info_addr;
+//       dyld_info->infoArrayCount = 1;
+//       dyld_info->uuidArrayCount = 1;
+//     }
+//     return ret;
+//   }
+//   return %orig(target_task, flavor, task_info_out, task_info_outCnt);
+// }
 
 // @import Darwin.POSIX.netinet.in;
 // @import Darwin.POSIX.arpa.inet;
