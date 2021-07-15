@@ -2481,6 +2481,9 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
           // didFinishLaunchingWithOptions 최하단 함수
           // -> vm_region_recurse_64가 있는 if 마지막 블록 후 첫 sub 함수
           patchData(0x1002d0534, 0xC0035FD6);
+        } else if([version isEqualToString:@"5.17.0"]) {
+          // 5.16.0과 위치 동일
+          patchData(0x1000ac894, 0xC0035FD6);
         }
 
         // 이건 자동으로 찾아내는 것
