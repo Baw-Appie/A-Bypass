@@ -100,7 +100,7 @@ PSSpecifier *livePatchToggleSpecifier;
 			specifier;
 		})];
 		[specifiers addObject:({
-			PSSpecifier *specifier = [PSSpecifier preferenceSpecifierNamed:LocalizeString(@"Check for updates") target:self set:nil get:nil detail:nil cell:PSButtonCell edit:nil];
+			PSSpecifier *specifier = [PSSpecifier preferenceSpecifierNamed:LocalizeString(@"Check for ruleset updates") target:self set:nil get:nil detail:nil cell:PSButtonCell edit:nil];
 	    	specifier->action = @selector(checkUpdate:);
 			specifier;
 		})];

@@ -20,8 +20,8 @@
 	<key>A-Bypass Update</key>
 	<string>A-Bypass 업데이트</string>
 	
-	<key>Check for updates</key>
-	<string>업데이트 확인</string>
+	<key>Check for ruleset updates</key>
+	<string>룰셋 업데이트 확인</string>
 
 	<key>A-Bypass Version</key>
 	<string>A-Bypass 버전</string>
