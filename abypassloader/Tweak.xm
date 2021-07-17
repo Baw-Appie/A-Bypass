@@ -2492,6 +2492,9 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
         } else if([version isEqualToString:@"5.17.0"]) {
           // 5.16.0과 위치 동일
           patchData(0x1000ac894, 0xC0035FD6);
+        } else if([version isEqualToString:@"5.18.0"]) {
+          // 5.16.0과 위치 동일
+          patchData(0x100a87a34, 0xC0035FD6);
         }
 
         // 이건 자동으로 찾아내는 것
