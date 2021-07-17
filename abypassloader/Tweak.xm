@@ -1067,19 +1067,38 @@ int stat(const char *path, struct stat *result);
   if(![[ABPattern sharedInstance] u:[[NSString alloc] initWithUTF8String:path] i:20009]) return %orig("/엿머겅.두번머겅", mode);
   return %orig;
 }
+
+// NSMutableDictionary *dladdresses = [NSMutableDictionary new];
+// %hookf(void *, dlsym, void *handle, const char *symbol) {
+//   NSString *sym = [NSString stringWithUTF8String:symbol];
+//   void *ret = %orig;
+//   HBLogError(@"dladdr-dlsym %@", sym);
+//   dladdresses[[NSString stringWithFormat:@"%p", ret]] = sym;
+//   NSArray *symbols = @[ @"MSHookFunction", @"MSHookMessageEx", @"MSFindSymbol", @"MSGetImageByName", @"ZzBuildHook", @"DobbyHook", @"LHHookFunctions", @"MSHookMemory", @"MSHookClassPair", @"_Z13flyjb_patternP8NSString", @"_Z9hms_falsev", @"rocketbootstrap_cfmessageportcreateremote", @"rocketbootstrap_cfmessageportexposelocal", @"rocketbootstrap_distributedmessagingcenter_apply", @"rocketbootstrap_look_up", @"rocketbootstrap_register", @"rocketbootstrap_unlock" ];
+//   if([symbols containsObject:sym]) return NULL;
+//   return ret;
+// }
 %hookf(int, dladdr, void *addr, Dl_info *info) {
   int ret = %orig;
   if(ret && info) {
-    if([@(info->dli_fname) containsString:@"ABypass"]) info->dli_fname = "/System/Library/Frameworks/Foundation.framework/Foundation";
-    if([@(info->dli_fname) containsString:@"substitute"]) info->dli_fname = "/System/Library/Frameworks/Foundation.framework/Foundation";
-    if([@(info->dli_fname) containsString:@"substrate"]) info->dli_fname = "/System/Library/Frameworks/Foundation.framework/Foundation";
-    if([@(info->dli_fname) containsString:@"DynamicLibraries"]) info->dli_fname = "/System/Library/Frameworks/Foundation.framework/Foundation";
-    if([@(info->dli_fname) containsString:@"TweakInject"]) info->dli_fname = "/System/Library/Frameworks/Foundation.framework/Foundation";
-    if([@(info->dli_fname) containsString:@"Cephei"]) info->dli_fname = "/System/Library/Frameworks/Foundation.framework/Foundation";
-    if([@(info->dli_fname) containsString:@"SnowBoardBase"]) info->dli_fname = "/System/Library/Frameworks/Foundation.framework/Foundation";
-    if([@(info->dli_fname) containsString:@"libhooker"]) info->dli_fname = "/System/Library/Frameworks/Foundation.framework/Foundation";
-    if([@(info->dli_fname) containsString:@"rocketbootstrap"]) info->dli_fname = "/System/Library/Frameworks/Foundation.framework/Foundation";
-    // if([@(info->dli_fname) containsString:@"ABypass"]) HBLogError(@"dladdr %s", info->dli_fname);
+    NSString *dli_fname = @(info->dli_fname);
+    if([dli_fname containsString:@"ABypass"]) {
+      // HBLogError(@"dladdr %@ %@", dli_fname, dladdresses[[NSString stringWithFormat:@"%p", addr]]);
+      info->dli_fname = "/System/Library/Frameworks/UIKit.framework/UIKit";
+    }
+    if([dli_fname containsString:@"substitute"] ||
+      [dli_fname containsString:@"substrate"] ||
+      [dli_fname containsString:@"DynamicLibraries"] ||
+      [dli_fname containsString:@"TweakInject"] ||
+      [dli_fname containsString:@"Cephei"] ||
+      [dli_fname containsString:@"SnowBoardBase"] ||
+      [dli_fname containsString:@"libhooker"] ||
+      [dli_fname containsString:@"blackjack"] ||
+      [dli_fname containsString:@"rocketbootstrap"]
+    ) {
+      return %orig(0x0, info);
+    }
+    // if([dli_fname containsString:@"ABypass"]) HBLogError(@"dladdr %@", dli_fname);
   }
   return ret;
 }
@@ -1148,17 +1167,6 @@ int stat(const char *path, struct stat *result);
   }
   return %orig;
 }
-
-// %hookf(void *, dlsym, void *handle, const char *symbol) {
-//   NSString *sym = [NSString stringWithUTF8String:symbol];
-
-//   HBLogError(@"dlsym %s", sym);
-
-//   NSArray *symbols = @[ @"MSHookFunction", @"MSHookMessageEx", @"MSFindSymbol", @"MSGetImageByName", @"ZzBuildHook", @"DobbyHook", @"LHHookFunctions", @"MSHookMemory", @"MSHookClassPair", @"_Z13flyjb_patternP8NSString", @"_Z9hms_falsev", @"rocketbootstrap_cfmessageportcreateremote", @"rocketbootstrap_cfmessageportexposelocal", @"rocketbootstrap_distributedmessagingcenter_apply", @"rocketbootstrap_look_up", @"rocketbootstrap_register", @"rocketbootstrap_unlock" ];
-//   if([symbols containsObject:sym]) return NULL;
-//   return %orig;
-// }
-
 %hookf(int, sysctl, int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp, size_t newlen) {
   if(namelen == 4 && name[0] == CTL_KERN && name[1] == KERN_PROC && name[2] == KERN_PROC_ALL && name[3] == 0) {
     *oldlenp = 0;
