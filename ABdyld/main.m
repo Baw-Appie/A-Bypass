@@ -10,13 +10,10 @@
 
 @interface CTCarrierHook : NSObject <RogueHook>
 @end
-
 @implementation CTCarrierHook
 + (NSString *)targetClass {
-    // dlopen("/Library/MobileSubstrate/DynamicLibraries/bfdecrypt.dylib", RTLD_NOW);
     return @"CTCarrier";
 }
-
 -(NSString *)mobileNetworkCode {
 	return @"06";
 }
@@ -27,12 +24,10 @@
 
 @interface AMSLBouncerHook : NSObject <RogueHook>
 @end
-
 @implementation AMSLBouncerHook
 + (NSString *)targetClass {
     return @"AMSLBouncer";
 }
-
 -(NSData *)decrypt:(NSData *)arg1 key:(NSData *)arg2 padding:(unsigned int *)arg3 {
   return [@"ㅇㅇㄷ" dataUsingEncoding:4];
 }
@@ -40,12 +35,10 @@
 
 @interface AMSLFairPlayInspectorHook : NSObject <RogueHook>
 @end
-
 @implementation AMSLFairPlayInspectorHook
 + (NSString *)targetClass {
     return @"AMSLFairPlayInspector";
 }
-
 +(id)unarchive:(id)arg1 {
   NSMutableDictionary *dict = [NSMutableDictionary dictionary];
   NSData *object_nsdata = [@"ㅎㅇ" dataUsingEncoding:NSUTF8StringEncoding];
@@ -64,7 +57,6 @@
 
 @interface BSAppIronHook : NSObject <RogueHook>
 @end
-
 @implementation BSAppIronHook
 + (NSString *)targetClass {
     return @"BSAppIron";
@@ -76,7 +68,6 @@
 
 @interface mVaccineHook : NSObject <RogueHook>
 @end
-
 @implementation mVaccineHook
 + (NSString *)targetClass {
     return @"mVaccine";
@@ -97,7 +88,6 @@
 
 @interface KSFileUtilHook : NSObject <RogueHook>
 @end 
-
 @implementation KSFileUtilHook
 + (NSString *)targetClass {
     return @"KSFileUtil";
@@ -109,7 +99,6 @@
 
 @interface AppJailBrokenCheckerHook : NSObject <RogueHook>
 @end
-
 @implementation AppJailBrokenCheckerHook
 + (NSString *)targetClass {
     return @"AppJailBrokenChecker";
@@ -121,7 +110,6 @@
 
 @interface SFAntiPiracyHook : NSObject <RogueHook>
 @end
-
 @implementation SFAntiPiracyHook
 + (NSString *)targetClass {
     return @"SFAntiPiracy";
@@ -142,7 +130,6 @@
 
 @interface NSFileManagerHook : NSObject  <RogueHook>
 @end
-
 @implementation NSFileManagerHook
 +(NSString *)targetClass {
   return @"NSFileManager";
@@ -155,7 +142,6 @@
 
 @interface UIApplicationHook : NSObject  <RogueHook>
 @end
-
 @implementation UIApplicationHook
 +(NSString *)targetClass {
   return @"UIApplication";
@@ -183,37 +169,42 @@
 }
 @end
 
-// @interface UpdateMIssuesManagerHook : NSObject  <RogueHook>
+@interface LiappHook : NSObject  <RogueHook>
+@end
+@implementation LiappHook
++(NSString *)targetClass {
+  dlopen("/Library/BawAppie/ABypass/ABLicense", RTLD_NOW);
+  return @"Liapp";
+}
++(int)LA1 {
+  return 0;
+}
++(int)LA2 {
+  return 0;
+}
+@end
+
+// @interface UnityLiappWrapperHook : NSObject  <RogueHook>
 // @end
-// @implementation UpdateMIssuesManagerHook
+// @implementation UnityLiappWrapperHook
 // +(NSString *)targetClass {
-//   return @"UpdateMIssuesManager";
+//   return @"UnityLiappWrapper";
 // }
-// -(unsigned int)viewDidUnload:(struct mach_header *)arg2 {
-//   [self.original didReceiveMemoryWarning];
-//   [RGELog log:@"%s", [(Class)objc_getClass("StockNewsdmManager") defRandomString]];
+// +(int)LA1 {
+//   return 0;
+// }
+// +(int)LA2 {
 //   return 0;
 // }
 // @end
 
-// @interface IntroViewControllerHook : NSObject <RogueHook>
-// @end
-
-// @implementation IntroViewControllerHook
-// + (NSString *)targetClass {
-//     return @"IntroViewController";
-// }
-// @end
-
-// @interface PureAppLibHook : NSObject <RogueHook>
-// @end
-
-// @implementation PureAppLibHook
-// + (NSString *)targetClass {
-//     return @"PureAppLib";
-// }
-// -(id)firstRequest:(id)arg2 :(id)arg3 {
-//   [RGELog log:@"%@, %@", arg2, arg3];
-//   return [self.original firstRequest:@"https://kr.repo.co.kr/pure.do" :arg3];
-// }
-// @end
+@interface w0n6YHook : NSObject  <RogueHook>
+@end
+@implementation w0n6YHook
++(NSString *)targetClass {
+  return @"w0n6Y";
+}
+-(id)u0tutZS {
+  return [[NSUUID UUID] UUIDString];
+}
+@end

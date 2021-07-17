@@ -19,15 +19,24 @@
 
 @implementation RogueHookImplementor
 
+static __attribute__((constructor))
+void ctor() {
+    hookProtocol = @protocol(RogueHook);
+    // dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [RogueHookImplementor implementAllMethodHooksForCurrentImage];
+    // });
+}
+
+
 static Protocol *hookProtocol;
 
-+ (void)load {
-    hookProtocol = @protocol(RogueHook);
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [self implementAllMethodHooksForCurrentImage];
-    });
+// + (void)load {
+//     hookProtocol = @protocol(RogueHook);
+//     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//         [self implementAllMethodHooksForCurrentImage];
+//     });
 
-}
+// }
 
 + (BOOL)implementAllMethodHooksForCurrentImage {
     const char *image = [self currentImage];
