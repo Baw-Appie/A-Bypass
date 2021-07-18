@@ -1064,7 +1064,13 @@ int stat(const char *path, struct stat *result);
 //  return 0;
 // }
 %hookf(int, access, const char *path, int mode) {
-  if(![[ABPattern sharedInstance] u:[[NSString alloc] initWithUTF8String:path] i:20009]) return %orig("/엿머겅.두번머겅", mode);
+  NSString *str = @(path);
+  // if([str isEqualToString:@"/Library"]) {
+  //   HBLogError(@"[ABPattern sharedInstance] /Library %d", mode);
+  //   errno = EACCES;
+  //   return 1;
+  // }
+  if(![[ABPattern sharedInstance] u:str i:20009]) return %orig("/엿머겅.두번머겅", mode);
   return %orig;
 }
 
@@ -1101,13 +1107,6 @@ int stat(const char *path, struct stat *result);
     // if([dli_fname containsString:@"ABypass"]) HBLogError(@"dladdr %@", dli_fname);
   }
   return ret;
-}
-%hookf(int, posix_spawn, pid_t *pid, const char *pathname, const posix_spawn_file_actions_t *file_actions, const posix_spawnattr_t *attrp, char *const argv[], char *const envp[]) {
-  if(pathname) {
-    NSString *path = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:pathname length:strlen(pathname)];
-    if(![[ABPattern sharedInstance] u:path i:20009]) return ENOENT;
-  }
-  return %orig;
 }
 %hookf(int, posix_spawnp, pid_t *pid, const char *pathname, const posix_spawn_file_actions_t *file_actions, const posix_spawnattr_t *attrp, char *const argv[], char *const envp[]) {
   if(pathname) {
@@ -1408,7 +1407,7 @@ int stat(const char *path, struct stat *result);
     if(image) {
         NSString *image_ns = [NSString stringWithUTF8String:image];
 
-        if(![[ABPattern sharedInstance] u:image_ns i:20024]) {
+        if(![[ABPattern sharedInstance] u:image_ns i:20025]) {
 
             *outCount = 0;
             return NULL;
@@ -1418,6 +1417,13 @@ int stat(const char *path, struct stat *result);
     return %orig;
 }
 
+%hookf(int, posix_spawn, pid_t *pid, const char *pathname, const posix_spawn_file_actions_t *file_actions, const posix_spawnattr_t *attrp, char *const argv[], char *const envp[]) {
+  if(pathname) {
+    NSString *path = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:pathname length:strlen(pathname)];
+    if(![[ABPattern sharedInstance] u:path i:20026]) return ENOENT;
+  }
+  return %orig;
+}
 %hookf(void, _dyld_register_func_for_add_image, void (*func)(const struct mach_header* mh, intptr_t vmaddr_slide)) {
   if(![identifier isEqualToString:@"com.hanaskcard.mobileportal"] && !objc_getClass("Liapp")) return %orig;
   HBLogError(@"ABPattern _dyld_register_func_for_add_image denied.");
@@ -1434,19 +1440,25 @@ int stat(const char *path, struct stat *result);
 }
 
 // TODO: 나중에 제대로 제거하도록 패치
-// %hookf(kern_return_t, task_info, task_name_t target_task, task_flavor_t flavor, task_info_t task_info_out, mach_msg_type_number_t *task_info_outCnt) {
-//   if (flavor == TASK_DYLD_INFO) {
-//     kern_return_t ret = %orig(target_task, flavor, task_info_out, task_info_outCnt);
-//     if (ret == KERN_SUCCESS) {
-//       struct task_dyld_info *task_info = (struct task_dyld_info *) task_info_out;
-//       struct dyld_all_image_infos *dyld_info = (struct dyld_all_image_infos *) task_info->all_image_info_addr;
-//       dyld_info->infoArrayCount = 1;
-//       dyld_info->uuidArrayCount = 1;
-//     }
-//     return ret;
-//   }
-//   return %orig(target_task, flavor, task_info_out, task_info_outCnt);
-// }
+%hookf(kern_return_t, task_info, task_name_t target_task, task_flavor_t flavor, task_info_t task_info_out, mach_msg_type_number_t *task_info_outCnt) {
+  // 당근마켓 크래시
+  if([identifier isEqualToString:@"com.towneers.www"]) return %orig;
+  if (flavor == TASK_DYLD_INFO) {
+    kern_return_t ret = %orig(target_task, flavor, task_info_out, task_info_outCnt);
+    if (ret == KERN_SUCCESS) {
+      struct task_dyld_info *task_info = (struct task_dyld_info *) task_info_out;
+      struct dyld_all_image_infos *dyld_info = (struct dyld_all_image_infos *) task_info->all_image_info_addr;
+      dyld_info->infoArrayCount = 0;
+      dyld_info->uuidArrayCount = 0;
+    }
+    return ret;
+  } else if(flavor == TASK_EXTMOD_INFO) {
+    return KERN_FAILURE;
+  } else {
+    // HBLogError(@"[ABPattern sharedInstance] %d", flavor);
+  }
+  return %orig(target_task, flavor, task_info_out, task_info_outCnt);
+}
 
 // @import Darwin.POSIX.netinet.in;
 // @import Darwin.POSIX.arpa.inet;
@@ -1490,10 +1502,57 @@ int stat(const char *path, struct stat *result);
 //   HBLogError(@"[ABPattern sharedInstance] %@", (__bridge NSString *)theString);
 //   return %orig;
 // }
-// %hookf(kern_return_t, vm_region_recurse_64, vm_map_t map, vm_address_t *address, vm_size_t *size, uint32_t *depth, vm_region_recurse_info_64_t info, mach_msg_type_number_t *infoCnt) {
-//   HBLogError(@"[ABPattern sharedInstance]");
-//     [[NSString stringWithFormat:@"ABLOADER EXCEPTION\n\n%@", [NSThread callStackSymbols]] writeToFile:[NSString stringWithFormat:@"%@/Documents/ABLoaderError.log", NSHomeDirectory()] atomically:true encoding:NSUTF8StringEncoding error:nil];
-//   return KERN_FAILURE;
+
+%hookf(kern_return_t, vm_region_recurse_64, vm_map_t map, vm_address_t *address, vm_size_t *size, uint32_t *depth, vm_region_submap_info_t info64_t, mach_msg_type_number_t *infoCnt) {
+  kern_return_t ret = %orig;
+  
+  // if(ret == KERN_SUCCESS && *infoCnt == VM_REGION_SUBMAP_INFO_COUNT_64) {
+  if(ret == KERN_SUCCESS) {
+    // HBLogError(@"[ABPattern shared] vm_region_recurse_64 success");
+    vm_region_submap_info *info = (vm_region_submap_info *)info64_t;
+    if(info->is_submap) {
+      // HBLogError(@"[ABPattern sharedInstance] vm_region_recurse_64 protection %d", info->protection);
+      info->protection = 3;
+    }
+  }
+
+  return ret;
+  // return KERN_FAILURE;
+}
+
+// %hookf(int, sysctlbyname, const char *_name, void *oldp, size_t oldlenp, void *newp, size_t newlen) {
+//   NSString *name = @(_name);
+//   NSArray *sysctls = @[
+//     @"security.mac.socket_enforce",
+//     @"security.mac.pipe_enforce",
+//     @"security.mac.system_enforce",
+//     @"security.mac.vm_enforce",
+//     @"security.mac.vnode_enforce",
+//     @"security.mac.posixshm_enforce",
+//     @"security.mac.sysvmsg_enforce",
+//     @"security.mac.posixsem_enforce",
+//     @"security.mac.device_enforce",
+//     @"security.mac.proc_enforce",
+//     @"security.mac.sysvshm_enforce",
+//     @"security.mac.sysvsem_enforce"
+//   ];
+//   if([sysctls containsObject:name]) {
+//     oldp = (void*)0xFAFAFAFA;
+//     return 0;
+//   }
+//   HBLogError(@"[ABPattern sharedInstance] %@", name);
+//   return %orig;
+// }
+
+// kern_return_t task_get_special_port(task_inspect_t task, int which_port, mach_port_t *special_port);
+// kern_return_t task_get_exception_ports(task_t task, exception_mask_t exception_mask, exception_mask_array_t masks, mach_msg_type_number_t *masksCnt, exception_handler_array_t old_handlers, exception_behavior_array_t old_behaviors, exception_flavor_array_t old_flavors);
+// %hookf(kern_return_t, task_get_special_port, task_inspect_t task, int which_port, mach_port_t *special_port) {
+//   kern_return_t ret = %orig;
+//   return ret;
+// }
+// %hookf(kern_return_t, task_get_exception_ports, task_t task, exception_mask_t exception_mask, exception_mask_array_t masks, mach_msg_type_number_t *masksCnt, exception_handler_array_t old_handlers, exception_behavior_array_t old_behaviors, exception_flavor_array_t old_flavors) {
+//   kern_return_t ret = %orig;
+//   return ret;
 // }
 %end
 
@@ -2543,6 +2602,17 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
       patchData(0x10003AC28, 0x950A0014);
       return hideProgress();
     }
+    if([identifier isEqualToString:@"com.unveilapp.unveil"]) {
+      if([version isEqualToString:@"1.0.0"]) {
+        // System volume is not signed
+        patchData(0x1001147f0, 0x200080D2);
+        patchData(0x1001147f4, 0xC0035FD6);
+        // Sandbox allows access to /Library
+        patchData(0x10011e4c0, 0x000080D2);
+        patchData(0x10011e4c4, 0xC0035FD6);
+      }
+    }
+
     if([identifier isEqualToString:@"com.tmoney.tmpay"]) {
       hookSymbol0("__ZN9cbpp_core13SecurityCheck14detect_rootingEv");
       hookSymbol0("__ZN9cbpp_core13SecurityCheck15detect_debuggerEv");
