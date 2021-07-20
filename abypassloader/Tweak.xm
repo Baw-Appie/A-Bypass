@@ -1709,7 +1709,8 @@ uint8_t *findS(const uint8_t *target) {
       if ((delta & 0xF) == 0) {
         uint8_t *prev = (uint8_t *)current - ((delta >> 4) + 1) * 4;
         if ((*(uint32_t *)prev & 0xFFC003E0) == 0xA98003E0
-            || (*(uint32_t *)prev & 0xFFC003E0) == 0x6D8003E0) {  //STP x, y, [SP,#-imm]!
+            || (*(uint32_t *)prev & 0xFFC003E0) == 0x6D8003E0
+            || (*(uint32_t *)prev & 0xFFC003E0) == 0xD10003E0) {  //STP x, y, [SP,#-imm]!
           return prev;
         }
       }
