@@ -1881,7 +1881,7 @@ uint8_t RET1[] = {
 // iXGuard
 void patch1(uint8_t* match) {
   patchCode(findS(match), RET, sizeof(RET));
-  debugMsg(@"[ABASM] patched r1: %p", match - _dyld_get_image_vmaddr_slide(0));
+  // debugMsg(@"[ABASM] patched r1: %p", match - _dyld_get_image_vmaddr_slide(0));
 }
 void remove1() {
   const uint64_t target[] = {
@@ -1902,7 +1902,12 @@ void remove1() {
 }
 // LxShields
 void patch2(uint8_t* match) {
+  // debugMsg(@"[ABASM] patched r2: %p", match - _dyld_get_image_vmaddr_slide(0));
+  // debugMsg(@"[ABASM] patched ret r2: %p", findS(match) - _dyld_get_image_vmaddr_slide(0));
   patchCode(findS(match), RET, sizeof(RET));
+}
+void patch2_1(uint8_t* match) {
+  patchCode(findS(match), RET0, sizeof(RET0));
 }
 void remove2() {
   const uint8_t target[] = {
@@ -1918,6 +1923,30 @@ void remove2() {
     0xE8, 0x57, 0x9F, 0x1A
   };
   findSegment(target2, sizeof(target2), &patch2);
+
+
+  // TOOD: 추후 findSegment2로 교체
+  // Paycoin(1.1.12) 기준 오프셋
+  // 탈옥 감지 결과 조회, -[Global checkLxShield:]에서 찾음.
+  const uint8_t target3[] = {
+    0x39, 0x01, 0x36, 0x0A,
+    0xC9, 0x02, 0x29, 0x0A,
+    0x29, 0x03, 0x09, 0x2A,
+    0x59, 0x00, 0x36, 0x0A,
+    0xC2, 0x02, 0x22, 0x0A,
+    0x22, 0x03, 0x02, 0x2A, 
+  };
+  findSegment(target3, sizeof(target3), &patch2_1);
+
+  // lxShield 초기화, 패치 안하면 30초 뒤 튕김.
+  // INVALID_ADDRESS 이용한 고의적 크래시는 추후 전역적으로 수정 필요.
+  const uint8_t target4[] = {
+    0x49, 0x01, 0x28, 0x0A,
+    0x08, 0x01, 0x2A, 0x0A,
+    0x28, 0x01, 0x08, 0x2A,
+    0xA9, 0x6A, 0x47, 0xB9, 
+  };
+  findSegment(target4, sizeof(target4), &patch2);
 }
 // AppSolid Legacy
 void patch3(uint8_t* match) {
@@ -2636,7 +2665,7 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
     loadingProgress(@"5");
 
     if(objc_getClass("BinaryChecker") || objc_getClass("mVaccine")) %init(BinaryChecker);
-    if([identifier isEqualToString:@"com.kakaogames.gdtskr"] || [identifier isEqualToString:@"com.hyundaicapital.myAccount"]) remove2();
+    if([identifier isEqualToString:@"com.kakaogames.gdtskr"] || [identifier isEqualToString:@"com.hyundaicapital.myAccount"] || [identifier isEqualToString:@"com.payprotocolwallet.kr"]) remove2();
     if([identifier isEqualToString:@"com.nice.MyCreditManager"] || [identifier isEqualToString:@"com.niceid.niceipin"] || [identifier isEqualToString:@"com.korail.KorailTalk"]) {
       remove3();
       remove4();
