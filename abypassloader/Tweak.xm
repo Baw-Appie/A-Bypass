@@ -38,7 +38,6 @@
 #define PT_DENY_ATTACH 31
 #endif
 
-#define ABPattern AppIePattern
 #define ABSI [ABPattern sharedInstance]
 
 // #define MSHookFunction DobbyHook
@@ -1426,7 +1425,7 @@ int stat(const char *path, struct stat *result);
 }
 %hookf(void, _dyld_register_func_for_add_image, void (*func)(const struct mach_header* mh, intptr_t vmaddr_slide)) {
   if(![identifier isEqualToString:@"com.hanaskcard.mobileportal"] && !objc_getClass("Liapp")) return %orig;
-  HBLogError(@"ABPattern _dyld_register_func_for_add_image denied.");
+  debugMsg(@"ABPattern _dyld_register_func_for_add_image denied.");
 }
 
 @import Darwin.POSIX.glob;
@@ -1439,17 +1438,34 @@ int stat(const char *path, struct stat *result);
   return %orig;
 }
 
-// TODO: 나중에 제대로 제거하도록 패치
 %hookf(kern_return_t, task_info, task_name_t target_task, task_flavor_t flavor, task_info_t task_info_out, mach_msg_type_number_t *task_info_outCnt) {
+  kern_return_t ret = %orig;
   // 당근마켓 크래시
-  if([identifier isEqualToString:@"com.towneers.www"]) return %orig;
+  if([identifier isEqualToString:@"com.towneers.www"]) return ret;
   if (flavor == TASK_DYLD_INFO) {
-    kern_return_t ret = %orig(target_task, flavor, task_info_out, task_info_outCnt);
     if (ret == KERN_SUCCESS) {
       struct task_dyld_info *task_info = (struct task_dyld_info *) task_info_out;
       struct dyld_all_image_infos *dyld_info = (struct dyld_all_image_infos *) task_info->all_image_info_addr;
-      dyld_info->infoArrayCount = 0;
-      dyld_info->uuidArrayCount = 0;
+
+      int arrayCount = 0;
+      int count = 0;
+      for(int i=0; i < dyld_info->infoArrayCount; i++) {
+        NSString *lower = [@(dyld_info->infoArray[i].imageFilePath) lowercaseString];
+        if ([[ABPattern sharedInstance] ozd:lower]) continue;
+        arrayCount++;
+      }
+
+      struct dyld_image_info *newInfoArray = (struct dyld_image_info*)malloc(sizeof(struct dyld_image_info) * arrayCount);
+      for(int i=0; i < dyld_info->infoArrayCount; i++) {
+        NSString *lower = [@(dyld_info->infoArray[i].imageFilePath) lowercaseString];
+        if ([[ABPattern sharedInstance] ozd:lower]) continue;
+        newInfoArray[count] = dyld_info->infoArray[i];
+        count++;
+      }
+
+      dyld_info->infoArray = newInfoArray;
+      dyld_info->infoArrayCount = count;
+      dyld_info->uuidArrayCount = count;
     }
     return ret;
   } else if(flavor == TASK_EXTMOD_INFO) {
@@ -1457,7 +1473,7 @@ int stat(const char *path, struct stat *result);
   } else {
     // HBLogError(@"[ABPattern sharedInstance] %d", flavor);
   }
-  return %orig(target_task, flavor, task_info_out, task_info_outCnt);
+  return ret;
 }
 
 // @import Darwin.POSIX.netinet.in;

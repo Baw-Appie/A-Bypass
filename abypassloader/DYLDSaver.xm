@@ -11,6 +11,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <dirent.h>
+#import "ABPattern.h"
 
 uint32_t dyldCount = 0;
 char **dyldNames = 0;
@@ -31,33 +32,7 @@ void syncDyldArray() {
 			continue;
 		}
 		NSString *lower = [name lowercaseString];
-		if ([lower containsString:@"substrate"] ||
-		    [lower containsString:@"bawappie"] ||
-		    [lower containsString:@"substitute"] ||
-		    [lower containsString:@"substitrate"] ||
-		    [lower containsString:@"cephei"] ||
-		    [lower containsString:@"rocketbootstrap"] ||
-		    [lower containsString:@"tweakinject"] ||
-		    [lower containsString:@"jailbreak"] ||
-		    [lower containsString:@"cycript"] ||
-		    [lower containsString:@"pspawn"] ||
-		    [lower containsString:@"libcolorpicker"] ||
-		    [lower containsString:@"libcs"] ||
-		    [lower containsString:@"bfdecrypt"] ||
-		    [lower containsString:@"sbinject"] ||
-		    [lower containsString:@"dobby"] ||
-		    [lower containsString:@"libhooker"] ||
-		    [lower containsString:@"snowboard"] ||
-		    [lower containsString:@"libblackjack"] ||
-		    [lower containsString:@"libobjc-trampolines"] ||
-		    [lower containsString:@"cephei"] ||
-		    [lower containsString:@"libmryipc"] ||
-		    [lower containsString:@"libactivator"] ||
-		    [lower containsString:@"alderis"] ||
-		    // 아직 이걸 감지하는지는 몰라서 일단 주석
-		    // [lower containsString:@"ablicense"] ||
-		    // [lower containsString:@"abypass"] ||
-		    [lower containsString:@"libcloaky"]) {
+		if ([[ABPattern sharedInstance] ozd:lower]) {
 			// HBLogError(@"[ABPattern] BYPASSED dyld = %@", name);
 			// if(![lower containsString:@"eversafe"])
 			continue;

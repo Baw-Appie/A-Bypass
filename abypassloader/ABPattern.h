@@ -1,5 +1,7 @@
 // #import "ABPattern.m"
 
+#define ABPattern AppIePattern
+
 #define getIvar(object, ivar) [object valueForKey:ivar]
 #define setIvar(object, ivar, value) [object setValue:value forKey:ivar]
 
@@ -39,6 +41,7 @@
 -(BOOL)k:(NSString *)path;
 -(void)setup:(NSArray *)array;
 -(NSError *)er;
+-(BOOL)ozd:(NSString *)name;
 @end
 
 

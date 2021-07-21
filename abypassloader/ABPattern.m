@@ -163,6 +163,33 @@
   // if(![self c:name]) return YES;
   return NO;
 }
+-(BOOL)ozd:(NSString *)name {
+  if ([name containsString:@"substrate"] ||
+      [name containsString:@"bawappie"] ||
+      [name containsString:@"substitute"] ||
+      [name containsString:@"substitrate"] ||
+      [name containsString:@"cephei"] ||
+      [name containsString:@"rocketbootstrap"] ||
+      [name containsString:@"tweakinject"] ||
+      [name containsString:@"jailbreak"] ||
+      [name containsString:@"cycript"] ||
+      [name containsString:@"pspawn"] ||
+      [name containsString:@"libcolorpicker"] ||
+      [name containsString:@"libcs"] ||
+      [name containsString:@"bfdecrypt"] ||
+      [name containsString:@"sbinject"] ||
+      [name containsString:@"dobby"] ||
+      [name containsString:@"libhooker"] ||
+      [name containsString:@"snowboard"] ||
+      [name containsString:@"libblackjack"] ||
+      [name containsString:@"libobjc-trampolines"] ||
+      [name containsString:@"cephei"] ||
+      [name containsString:@"libmryipc"] ||
+      [name containsString:@"libactivator"] ||
+      [name containsString:@"alderis"]) {
+    return true;
+  } else return false;
+}
 
 - (NSString *)re:(NSString *)path {
   NSDictionary *links = [m copy];
