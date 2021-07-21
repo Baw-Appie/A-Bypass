@@ -2616,7 +2616,7 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
     [[ABPattern sharedInstance] setup:dic[@"data"]];
     if([ABSI.noHookingPlz containsObject:identifier]) return hideProgress();
 
-    // Sublime Text등 일부 텍스트 에디터에서만 정상적으로 표시됨.
+    // Sublime Text 등 일부 텍스트 에디터에서만 정상적으로 표시됨.
     // 절대 전부 똑같은게 아님!
     // 낚이지 말자.
     %init(framework, -SCMHArxan=objc_getClass(" "), -SpaceClass=objc_getClass(" "));
