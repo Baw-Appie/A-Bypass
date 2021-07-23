@@ -167,8 +167,9 @@ PSSpecifier *livePatchToggleSpecifier;
 -(void)viewDidLoad {
 	[super viewDidLoad];
 	if(!prefs) [self getPreference];
-	if(prefs[@"stopABLivePatch"]) {
-		self.livePatchVersion = [NSString stringWithFormat:@"[Stopped] %@", [NSString stringWithContentsOfFile:@"/var/mobile/Library/Preferences/ABLivePatch" encoding:NSUTF8StringEncoding error:nil]];
+	if([[NSFileManager defaultManager] fileExistsAtPath:@"/var/mobile/Library/Preferences/ABLivePatch"]) {
+		if(prefs[@"stopABLivePatch"]) self.livePatchVersion = [NSString stringWithFormat:@"[Stopped] %@", [NSString stringWithContentsOfFile:@"/var/mobile/Library/Preferences/ABLivePatch" encoding:NSUTF8StringEncoding error:nil]];
+		else self.livePatchVersion = [NSString stringWithFormat:@"[Outdated] %@", [NSString stringWithContentsOfFile:@"/var/mobile/Library/Preferences/ABLivePatch" encoding:NSUTF8StringEncoding error:nil]];
 		return;
 	}
 
@@ -242,7 +243,7 @@ UIAlertController *alert;
 		prefs[@"stopABLivePatch"] = nil;
 	} else {
 		alert = [UIAlertController alertControllerWithTitle:LocalizeString(@"A-Bypass Live Patch") message:LocalizeString(@"You have successfully disabled A-Bypass Live Patch Auto Update.") preferredStyle:UIAlertControllerStyleAlert];
-		[self.livePatchVersion writeToFile:@"/var/mobile/Library/Preferences/ABLivePatch" atomically:YES encoding:NSUTF8StringEncoding error:nil];
+		[[self.livePatchVersion stringByReplacingOccurrencesOfString:@"[Outdated] " withString:@""] writeToFile:@"/var/mobile/Library/Preferences/ABLivePatch" atomically:YES encoding:NSUTF8StringEncoding error:nil];
 		prefs[@"stopABLivePatch"] = @1;
 	}
 

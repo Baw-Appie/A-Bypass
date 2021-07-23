@@ -159,6 +159,8 @@ extern "C" CFPropertyListRef MGCopyAnswer(CFStringRef property);
         [self.loadingToastForABypass hideToast];
       });
     });
+  } else if([userInfo[@"type"] isEqual:@6]) {
+    [[NSFileManager defaultManager] removeItemAtPath:@"/var/mobile/Library/Preferences/ABLivePatch" error:&error];
   }
   if(error) return @{@"success": @0, @"message": [error localizedDescription]};
   return @{@"success": @1};
@@ -249,6 +251,9 @@ extern "C" CFPropertyListRef MGCopyAnswer(CFStringRef property);
     }
 
     if(!plistDict[@"stopABLivePatch"]) {
+      if([[NSFileManager defaultManager] fileExistsAtPath:@"/var/mobile/Library/Preferences/ABLivePatch"]) {
+        [center callExternalMethod:@selector(handleUpdateLicense:) withArguments:@{ @"type": @6, @"identifier": identifier }];
+      }
       NSDictionary *result = [center callExternalMethod:@selector(handleUpdateLicense:) withArguments:@{
         @"type": @1,
         @"identifier": identifier
