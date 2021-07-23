@@ -2057,19 +2057,12 @@ int hook_ix_sysCheck_integrity(void **arg1, struct ix_verify_info *p_integrity_i
 }
 
 void patch6(uint8_t* match) {
-  // debugMsg(@"[ABPattern sharedInstance] findedo %p", findS(match)-_dyld_get_image_vmaddr_slide(0));
   MSHookFunction((void *)findS(match), (void *)hook_ix_sysCheckStart, (void **)&orig_ix_sysCheckStart);
 }
 void patch6_1(uint8_t* match) {
-  // debugMsg(@"[ABPattern sharedInstance] finded1 %p", findS(match)-_dyld_get_image_vmaddr_slide(0));
   MSHookFunction((void *)findS(match), (void *)hook_ix_sysCheck_gamehack, (void **)&orig_ix_sysCheck_gamehack);
 }
-void patch6_2(uint8_t* match) {
-  // debugMsg(@"[ABPattern sharedInstance] finded2 %p", findS(match)-_dyld_get_image_vmaddr_slide(0));
-  MSHookFunction((void *)findS(match), (void *)hook_ix_sysCheckStart, (void **)&orig_ix_sysCheckStart);
-}
 void patch6_3(uint8_t* match) {
-  // debugMsg(@"[ABPattern sharedInstance] finded3 %p", findS(match)-_dyld_get_image_vmaddr_slide(0));
   MSHookFunction((void *)findS(match), (void *)hook_ix_sysCheck_integrity, (void **)&orig_ix_sysCheck_integrity);
 }
 void patch6_5(uint8_t* match) {
@@ -2116,6 +2109,14 @@ void remove6() {
     0x35016CA8 // CBNZ w8, loc_*
   };
 
+  const uint64_t ix_sysCheckStart_target2_2[] = {
+    0x90000000, // ADRP
+    0x90000000, // ADD
+    0x88DFFD08, // LDAR w8, [x8]
+    0xF81903A0, // STUR x0, [x29, var_70]
+    0x35016C28 // CBNZ w8, loc_*
+  };
+
   const uint64_t ix_sysCheckStart_mask2[] = {
     0x9F000000,
     0x90000000,
@@ -2124,7 +2125,8 @@ void remove6() {
     0xFFFFFFFF
   };
 
-  findSegment2(ix_sysCheckStart_target2, ix_sysCheckStart_mask2, sizeof(ix_sysCheckStart_target2)/sizeof(uint64_t), &patch6_2);
+  findSegment2(ix_sysCheckStart_target2, ix_sysCheckStart_mask2, sizeof(ix_sysCheckStart_target2)/sizeof(uint64_t), &patch6);
+  findSegment2(ix_sysCheckStart_target2_2, ix_sysCheckStart_mask2, sizeof(ix_sysCheckStart_target2)/sizeof(uint64_t), &patch6);
 
 
   const uint64_t ix_sysCheck_integrity_target[] = {
