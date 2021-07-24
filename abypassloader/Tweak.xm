@@ -1735,6 +1735,31 @@ uint8_t *findS(const uint8_t *target) {
 
   return (uint8_t *)target;
 }
+uint8_t *findSA(const uint8_t *target) {
+  const struct mach_header_64 *header = (const struct mach_header_64*) _dyld_get_image_header(0);
+  const struct section_64 *executable_section = getsectbynamefromheader_64(header, "__TEXT", "__text");
+  uint32_t *start = (uint32_t *) ((intptr_t) header + executable_section->offset);
+
+  uint32_t *current = (uint32_t *)target;
+
+  while (current >= start) {
+    uint32_t op = *current;
+
+    if (!((op & 0xFFC003E0) == 0xA98003E0
+      && (op & 0xFFC003E0) == 0x6D8003E0
+      && (op & 0xFFC003E0) == 0xD10003E0)) {
+        uint8_t *prev = (uint8_t *)(current-1);
+        if ((*(uint32_t *)prev & 0xFFC003E0) == 0xA98003E0
+            || (*(uint32_t *)prev & 0xFFC003E0) == 0x6D8003E0
+            || (*(uint32_t *)prev & 0xFFC003E0) == 0xD10003E0) {  //STP x, y, [SP,#-imm]!
+          return prev;
+        }
+    }
+    current -= 1;
+  }
+
+  return (uint8_t *)target;
+}
 
 void findSegment2ForDyldImage(const uint64_t *target, const uint64_t *mask, const uint32_t target_len, void (*callback)(uint8_t *), int image_num) {
     const struct mach_header_64 *header = (const struct mach_header_64*) _dyld_get_image_header(image_num);
@@ -1896,8 +1921,11 @@ uint8_t RET1[] = {
 
 // iXGuard
 void patch1(uint8_t* match) {
-  patchCode(findS(match), RET, sizeof(RET));
-  // debugMsg(@"[ABASM] patched r1: %p", match - _dyld_get_image_vmaddr_slide(0));
+  patchCode(findSA(match), RET, sizeof(RET));
+  // patchData(0x1019a26f4, 0xC0035FD6);
+  //1019a26f4
+  debugMsg(@"[ABASM] patched or1: %p", match - _dyld_get_image_vmaddr_slide(0));
+  debugMsg(@"[ABASM] patched r1: %p", findSA(match) - _dyld_get_image_vmaddr_slide(0));
 }
 void remove1() {
   const uint64_t target[] = {
@@ -1914,7 +1942,28 @@ void remove1() {
     0xFFC00000
   };
 
+  const uint64_t target2[] = {
+    0x39000000,
+    0x90000000,
+    0x90000000,
+    0x91000073,
+    0x7100053F,
+    0xF9000000,
+    0x540000A1
+  };
+
+  const uint64_t mask2[] = {
+    0xFF000000,
+    0x9F000000,
+    0x9F000000,
+    0xFF0000FF,
+    0xFFFFFFFF,
+    0xFF000000,
+    0xFFFFFFFF
+  };
+
   findSegment2(target, mask, sizeof(target)/sizeof(uint64_t), &patch1);
+  findSegment2(target2, mask2, sizeof(target2)/sizeof(uint64_t), &patch1);
 }
 // LxShields
 void patch2(uint8_t* match) {
@@ -2599,9 +2648,6 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
         } else if([version isEqualToString:@"5.17.0"]) {
           // 5.16.0과 위치 동일
           patchData(0x1000ac894, 0xC0035FD6);
-        } else if([version isEqualToString:@"5.18.0"]) {
-          // 5.16.0과 위치 동일
-          patchData(0x100a87a34, 0xC0035FD6);
         }
 
         // 이건 자동으로 찾아내는 것
