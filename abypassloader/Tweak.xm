@@ -70,10 +70,14 @@ int isSafePTR(int64_t ptr) {
 }
 
 %group framework
-// %hook Liapp
-// +(int)LA1 {
-//   return 0;
-// }
+// TODO: 이거 없이 패치하기. 
+%hook Liapp
++(int)LA1 {
+  return 0;
+}
++(int)LA2 {
+  return 0;
+}
 // +(id)GA {
 //   return @"%C9%E2w%28%D7%29Fk%FF%0D%DF%F5k%3B%C3q%8F%EB%C54m%22%25%BE%CF%5D%1B%1D%26%1C";
 // }
@@ -85,31 +89,49 @@ int isSafePTR(int64_t ptr) {
 //   HBLogError(@"[ABPattern sharedInstance] SUID %@", arg1);
 
 // }
-// +(BOOL)SVUG1:(id)arg1 {
-//   HBLogError(@"[ABPattern sharedInstance] SVUG1 %@", arg1);
-//   return false;
-// }
 // +(id)GI {
 //   return @"c4a75b0b";
 // }
-// %end
-%hook UnityLiappWrapper
-+(int)LA1 {
-  return 0;
-}
+// +(BOOL)SVUI1 {
+//   return true;
+// }
+// +(BOOL)SVUG2:(void *)arg1 {
+//   // arg1 = 아마도 struct f0urThlwO4XULZZZ4 (구조 공개 안됨)
+
+//   HBLogError(@"[ABASM] init~~~~");
+//   %orig;
+//   HBLogError(@"[ABASM] HI~~~~");
+//   // HBLogError(@"[ABASM] %d", *((int*)arg1)); // -108
+//   // HBLogError(@"[ABASM] %d", *((int*)arg1 + 0x8)); // -60
+//   // HBLogError(@"[ABASM] %d", *((int*)arg1 + 0x10)); // 28
+//   // HBLogError(@"[ABASM] %d", *((int*)arg1 + 0x18)); // -60
+//   // HBLogError(@"[ABASM] %d", *((int*)arg1 + 0x20)); // 36
+
+//   // // void *newarg1 = malloc(0x20);
+//   // *((int*)arg1) = 0x0;
+//   // *((int*)arg1 + 0x8) = 0x0;
+//   // *((int*)arg1 + 0x10) = 0x0;
+//   // *((int*)arg1 + 0x18) = 0x0;
+//   *((int*)arg1 + 0x20) = 300;
+//   // arg1 = newarg1;
+//   return true;
+// }
 %end
 %hook w0n6Y
 -(id)u0tutZS {
   return [[NSUUID UUID] UUIDString];
 }
 %end
-// %hook UIViewController
-// - (void)presentViewController:(UIViewController *)viewControllerToPresent animated:(BOOL)flag completion:(void (^)(void))completion {
-//   HBLogError(@"[ABPattern] ????");
-//   HBLogError(@"[ABPattern] %@", [NSThread callStackSymbols]);
-//   [[NSString stringWithFormat:@"ABLOADER EXCEPTION\n\n%@", [NSThread callStackSymbols]] writeToFile:[NSString stringWithFormat:@"%@/Documents/ABLoaderError.log", NSHomeDirectory()] atomically:true encoding:NSUTF8StringEncoding error:nil];
-// }
-// %end
+%hook UIViewController
+- (void)presentViewController:(UIViewController *)viewControllerToPresent animated:(BOOL)flag completion:(void (^)(void))completion {
+  if([viewControllerToPresent isKindOfClass:[UIAlertController class]]) {
+    if([((UIAlertController *)viewControllerToPresent).title isEqualToString:@"LIAPP"]) {
+      self.view.window.hidden = true; 
+    }
+  }
+  %orig;
+}
+%end
 %hook CMARConditionalLaunchState
 -(int)blockers {
   return 0;
