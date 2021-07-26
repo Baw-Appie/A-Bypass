@@ -13,7 +13,6 @@
 //******************************************//
 
 //importing and including files
-
 #include <substrate.h>
 #include <mach-o/dyld.h>
 #include <mach/mach.h>
@@ -28,26 +27,12 @@ It then checks for the MH_PIE flag. If it is there, it returns TRUE.
 Parameters: nil
 Return: Wether it has ASLR or not
 */
-
-bool hasASLR()
-{
-
+bool hasASLR() {
     const struct mach_header *mach;
-
     mach = _dyld_get_image_header(0);
 
-    if (mach->flags & MH_PIE)
-    {
-
-        //has aslr enabled
-        return true;
-    }
-    else
-    {
-
-        //has aslr disabled
-        return false;
-    }
+    if (mach->flags & MH_PIE) return true; //has aslr enabled
+    else return false; //has aslr disabled
 }
 
 /*
@@ -55,9 +40,7 @@ This Function gets the vmaddr slide of the Image at Index 0.
 Parameters: nil
 Return: the vmaddr slide
 */
-
-uintptr_t get_slide()
-{
+uintptr_t get_slide() {
     return _dyld_get_image_vmaddr_slide(0);
 }
 
@@ -66,32 +49,22 @@ This Function calculates the Address if ASLR is enabled or returns the normal of
 Parameters: The Original Offset
 Return: Either the Offset or the New calculated Offset if ASLR is enabled
 */
-
-uintptr_t calculateAddress(uintptr_t offset)
-{
-
-    if (hasASLR())
-    {
-
+uintptr_t calculateAddress(uintptr_t offset) {
+    if (hasASLR()) {
         uintptr_t slide = get_slide();
-
         return (slide + offset);
-    }
-    else
-    {
-
+    } else {
         return offset;
     }
 }
+
 /*
 This function calculates the size of the data passed as an argument. 
 It returns 1 if 4 bytes and 0 if 2 bytes
 Parameters: data to be written
 Return: True = 4 bytes/higher or False = 2 bytes
 */
-
-bool getType(unsigned int data)
-{
+bool getType(unsigned int data) {
     int a = data & 0xffff8000;
     int b = a + 0x00008000;
 
@@ -105,28 +78,25 @@ this version is crafted to take use of MSHookMemory as
 mach_vm functions are causing problems with codesigning on iOS 12.
 Hopefully this workaround is just temporary.
 */
+bool patchCode(void *target, const void *data, size_t size);
+bool patchData(uintptr_t offset, unsigned int data) {
+    patchCode((void *)(offset + get_slide()), &data, sizeof(data));
+}
 
-bool patchData(uintptr_t offset, unsigned int data)
-{
+bool patchData_Legacy(uintptr_t offset, unsigned int data) {
     mshookmemory_ptr_t MSHookMemory_ = (mshookmemory_ptr_t)MSFindSymbol(NULL, "_MSHookMemory");
 
     // MSHookMemory is supported, use that instead of vm_write
-    if (MSHookMemory_)
-    {
-        if (getType(data))
-        {
+    if (MSHookMemory_) {
+        if (getType(data)) {
             data = CFSwapInt32(data);
             MSHookMemory_((void *)(offset + get_slide()), &data, 4);
-        }
-        else
-        {
+        } else {
             data = CFSwapInt16(data);
             MSHookMemory_((void *)(offset + get_slide()), &data, 2);
         }
         return true;
-    }
-    else
-    {
+    } else {
         kern_return_t err;
         mach_port_t port = mach_task_self();
         vm_address_t address = calculateAddress(offset);
@@ -136,31 +106,20 @@ bool patchData(uintptr_t offset, unsigned int data)
         err = vm_protect(port, (vm_address_t)address, sizeof(data), false, VM_PROT_READ | VM_PROT_WRITE | VM_PROT_COPY);
 
         //check if the protection fails
-
-        if (err != KERN_SUCCESS)
-        {
-            return false;
-        }
+        if (err != KERN_SUCCESS) return false;
 
         //write code to memory
-
-        if (getType(data))
-        {
+        if (getType(data)) {
             data = CFSwapInt32(data);
             err = vm_write(port, address, (vm_address_t)&data, sizeof(data));
-        }
-        else
-        {
+        } else {
             data = (unsigned short)data;
             data = CFSwapInt16(data);
             err = vm_write(port, address, (vm_address_t)&data, sizeof(data));
         }
-        if (err != KERN_SUCCESS)
-        {
-            return FALSE;
-        }
-        //set the protections back to normal so the app can access this address as usual
+        if (err != KERN_SUCCESS) return FALSE;
 
+        //set the protections back to normal so the app can access this address as usual
         err = vm_protect(port, (vm_address_t)address, sizeof(data), false, VM_PROT_READ | VM_PROT_EXECUTE);
 
         return TRUE;
