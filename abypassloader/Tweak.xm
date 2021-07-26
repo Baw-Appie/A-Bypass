@@ -282,13 +282,6 @@ int isSafePTR(int64_t ptr) {
   return false;
 }
 +(int)updateCheck {
-  if([identifier isEqualToString:@"com.lottecard.mobilepay"]) {
-    patchData(0x1000CC88C, 0x60000054);
-    patchData(0x1000544C0, 0x69000010);
-    patchData(0x1001C5A24, 0x49010010);
-    patchData(0x1001CCCC0, 0x85720E94);
-    patchData(0x10003AC28, 0x69000010);
-  }
   return 121;
 }
 %end
@@ -1815,7 +1808,6 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
       @"com.lottecard.appcard",
       @"com.toyopagroup.picaboo",
       @"com.shinhancard.SmartShinhan2",
-      @"com.lottecard.mobilepay",
       @"com.kebhana.hanapush",
       @"uk.co.barclays.bmbappstore",
     ];
@@ -1934,14 +1926,6 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
       } else {
         hookingAccessSVC80();
       }
-      return hideProgress();
-    }
-    if([identifier isEqualToString:@"com.lottecard.mobilepay"]) {
-      patchData(0x1000CC88C, 0x4A080014);
-      patchData(0x1000544C0, 0x27630014);
-      patchData(0x1001C5A24, 0xE11B0014);
-      patchData(0x1001CCCC0, 0x1F2003D5);
-      patchData(0x10003AC28, 0x950A0014);
       return hideProgress();
     }
     if([identifier isEqualToString:@"com.unveilapp.unveil"]) {
