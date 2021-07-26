@@ -5,7 +5,7 @@ include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = ABypassLoader
 
-ABypassLoader_FILES = Tweak.xm ABPattern.m DYLDSaver.xm fishhook.c
+ABypassLoader_FILES = Tweak.xm ABPattern.m DYLDSaver.xm fishhook.c ImagePatcher.xm
 ABypassLoader_LIBRARIES = mryipc Dobby
 ABypassLoader_CODESIGN_FLAGS=-S./ent.plist
 
