@@ -435,7 +435,7 @@ struct ix_verify_info {
 
 int (*orig_ix_sysCheckStart)(struct ix_detected_pattern **p_info);
 int hook_ix_sysCheckStart(struct ix_detected_pattern **p_info) {
-  orig_ix_sysCheckStart(p_info);
+  // orig_ix_sysCheckStart(p_info);
   struct ix_detected_pattern *patternInfo = (struct ix_detected_pattern*)malloc(sizeof(struct ix_detected_pattern));
   strcpy(patternInfo->resultCode, "0000");
   strcpy(patternInfo->object, "SYSTEM_OK");
@@ -446,7 +446,7 @@ int hook_ix_sysCheckStart(struct ix_detected_pattern **p_info) {
 
 int (*orig_ix_sysCheck_gamehack)(struct ix_detected_pattern **p_info, struct ix_detected_pattern_list_gamehack **p_list_gamehack);
 int hook_ix_sysCheck_gamehack(struct ix_detected_pattern **p_info, struct ix_detected_pattern_list_gamehack **p_list_gamehack) {
-
+  // orig_ix_sysCheck_gamehack(p_info, p_list_gamehack);
   struct ix_detected_pattern *patternInfo = (struct ix_detected_pattern*)malloc(sizeof(struct ix_detected_pattern));
   struct ix_detected_pattern_list_gamehack *patternList = (struct ix_detected_pattern_list_gamehack*)malloc(sizeof(struct ix_detected_pattern_list_gamehack));
 
@@ -475,11 +475,11 @@ void patch6_1(uint8_t* match) {
   MSHookFunction((void *)findS(match), (void *)hook_ix_sysCheck_gamehack, (void **)&orig_ix_sysCheck_gamehack);
 }
 void patch6_3(uint8_t* match) {
-  MSHookFunction((void *)findS(match), (void *)hook_ix_sysCheck_integrity, (void **)&orig_ix_sysCheck_integrity);
+  if(0)MSHookFunction((void *)findS(match), (void *)hook_ix_sysCheck_integrity, (void **)&orig_ix_sysCheck_integrity);
 }
 void patch6_5(uint8_t* match) {
   // debugMsg(@"[ABPattern sharedInstance] finded5 %p", match-_dyld_get_image_vmaddr_slide(0));
-  patchCode(findS(match), RET, sizeof(RET));
+  if(0)patchCode(findS(match), RET, sizeof(RET));
 }
 
 void remove6() {
