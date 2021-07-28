@@ -1683,21 +1683,6 @@ static char* my_strstr(char* str1, const char* str2) {
   return orig_strstr(str1, str2);
 }
 
-%group toss
-%hook UILabel
--(void)drawRect:(id)arg1 {
-  NSString *ret = self.text;
-  if([ret containsString:@"금융의 모든 것"]) {
-    [self setText:@"탈옥 우회의 모든 것\nA-Bypass로 간편하게"];
-  }
-  %orig;
-}
-%end
-// %hookf(kern_return_t, vm_region_recurse_64, vm_map_t map, vm_address_t *address, vm_size_t *size, uint32_t *depth, vm_region_recurse_info_64_t info, mach_msg_type_number_t *infoCnt) {
-//   return KERN_FAILURE;
-// }
-%end
-
 %group BinaryChecker
 %hook NSString
 - (NSString *)substringFromIndex:(NSUInteger)from {
@@ -1875,7 +1860,6 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
     if([ABSI.hookSVC80 containsObject:identifier]) hookingSVC80();
 
     if([identifier isEqualToString:@"com.vivarepublica.cash"]) {
-      %init(toss);
       if(!objc_getClass("StockNewsdmManager")) {
         NSString *version = [[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"];
         if([version isEqualToString:@"5.5.0"]) {
