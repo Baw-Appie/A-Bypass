@@ -79,24 +79,26 @@ mach_vm functions are causing problems with codesigning on iOS 12.
 Hopefully this workaround is just temporary.
 */
 bool patchCode(void *target, const void *data, size_t size);
+bool patchData_Legacy(uintptr_t offset, unsigned int data);
 bool patchData(uintptr_t offset, unsigned int data) {
-    patchCode((void *)(offset + get_slide()), &data, sizeof(data));
+    return patchData_Legacy(offset, data);
+    return patchCode((void *)(offset + get_slide()), &data, sizeof(data));
 }
 
 bool patchData_Legacy(uintptr_t offset, unsigned int data) {
-    mshookmemory_ptr_t MSHookMemory_ = (mshookmemory_ptr_t)MSFindSymbol(NULL, "_MSHookMemory");
+    // mshookmemory_ptr_t MSHookMemory_ = (mshookmemory_ptr_t)MSFindSymbol(NULL, "_MSHookMemory");
 
-    // MSHookMemory is supported, use that instead of vm_write
-    if (MSHookMemory_) {
-        if (getType(data)) {
-            data = CFSwapInt32(data);
-            MSHookMemory_((void *)(offset + get_slide()), &data, 4);
-        } else {
-            data = CFSwapInt16(data);
-            MSHookMemory_((void *)(offset + get_slide()), &data, 2);
-        }
-        return true;
-    } else {
+    // // MSHookMemory is supported, use that instead of vm_write
+    // if (MSHookMemory_) {
+    //     if (getType(data)) {
+    //         data = CFSwapInt32(data);
+    //         MSHookMemory_((void *)(offset + get_slide()), &data, 4);
+    //     } else {
+    //         data = CFSwapInt16(data);
+    //         MSHookMemory_((void *)(offset + get_slide()), &data, 2);
+    //     }
+    //     return true;
+    // } else {
         kern_return_t err;
         mach_port_t port = mach_task_self();
         vm_address_t address = calculateAddress(offset);
@@ -123,7 +125,7 @@ bool patchData_Legacy(uintptr_t offset, unsigned int data) {
         err = vm_protect(port, (vm_address_t)address, sizeof(data), false, VM_PROT_READ | VM_PROT_EXECUTE);
 
         return TRUE;
-    }
+    // }
 }
 
 unsigned long get_vm_slide_by_name(NSString *imageName) {
