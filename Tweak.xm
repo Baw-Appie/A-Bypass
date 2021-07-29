@@ -182,8 +182,8 @@ extern "C" CFPropertyListRef MGCopyAnswer(CFStringRef property);
   NSMutableDictionary *plistDict = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.rpgfarm.abypassprefs.plist"];
   if(![plistDict[bundleID] isEqual:@1]) return %orig;
   if([subloader containsObject:bundleID]) [environmentM setObject:@"/usr/lib/ABSubLoader.dylib" forKey:@"DYLD_INSERT_LIBRARIES"];
-  if([disableIdentifiers containsObject:bundleID]) {
-    [environmentM setObject:@"/usr/lib/ABDYLD.dylib" forKey:@"DYLD_INSERT_LIBRARIES"];
+  if([disableIdentifiers containsObject:bundleID]) [environmentM setObject:@"/usr/lib/ABDYLD.dylib" forKey:@"DYLD_INSERT_LIBRARIES"];
+  if([disableIdentifiers containsObject:bundleID] || [subloader containsObject:bundleID]) {
     if(isSubstitute) {
       fopen(DisableLocation, "w");
     } else {
@@ -200,8 +200,8 @@ extern "C" CFPropertyListRef MGCopyAnswer(CFStringRef property);
   NSMutableDictionary *plistDict = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.rpgfarm.abypassprefs.plist"];
   if(![plistDict[bundleID] isEqual:@1]) return %orig;
   if([subloader containsObject:bundleID]) [environmentM setObject:@"/usr/lib/ABSubLoader.dylib" forKey:@"DYLD_INSERT_LIBRARIES"];
-  if([disableIdentifiers containsObject:bundleID]) {
-    [environmentM setObject:@"/usr/lib/ABDYLD.dylib" forKey:@"DYLD_INSERT_LIBRARIES"];
+  if([disableIdentifiers containsObject:bundleID]) [environmentM setObject:@"/usr/lib/ABDYLD.dylib" forKey:@"DYLD_INSERT_LIBRARIES"];
+  if([disableIdentifiers containsObject:bundleID] || [subloader containsObject:bundleID]) {
     if(isSubstitute) {
       fopen(DisableLocation, "w");
     } else {
