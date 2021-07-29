@@ -1454,6 +1454,8 @@ int stat(const char *path, struct stat *result);
   return %orig;
 }
 
+typedef char int8;
+typedef int8 BYTE;
 %hookf(kern_return_t, task_info, task_name_t target_task, task_flavor_t flavor, task_info_t task_info_out, mach_msg_type_number_t *task_info_outCnt) {
   kern_return_t ret = %orig;
   // 당근마켓 크래시
@@ -1479,9 +1481,35 @@ int stat(const char *path, struct stat *result);
         count++;
       }
 
+      
+      int count2 = 0;
+      struct dyld_uuid_info *newUUIDArray = (struct dyld_uuid_info*)malloc(sizeof(struct dyld_uuid_info) * arrayCount);
+      for(int i=0; i < dyld_info->uuidArrayCount; i++) {
+        const struct mach_header_64* mheader = (const struct mach_header_64*)dyld_info->uuidArray[i].imageLoadAddress;
+        if (mheader->filetype == MH_DYLIB) {
+          if(mheader->magic == MH_MAGIC_64 && mheader->ncmds > 0) {
+            void *loadCmd = (void*)(mheader + 1);
+            struct segment_command_64 *sc = (struct segment_command_64 *)loadCmd;
+            for (int index = 0; index < mheader->ncmds; ++index, sc = (struct segment_command_64*)((BYTE*)sc + sc->cmdsize)) {
+              if (sc->cmd == LC_ID_DYLIB) {
+                struct dylib_command *dc = (struct dylib_command *)sc;
+                struct dylib dy = dc->dylib;
+                const char *detectedDyld = (char*)dc + dy.name.offset;
+                NSString *lower = [@(detectedDyld) lowercaseString];
+                if([[ABPattern sharedInstance] ozd:lower]) continue;
+              }
+            }
+          }
+        }
+
+        newUUIDArray[count2] = dyld_info->uuidArray[i];
+        count2++;
+      }
+
       dyld_info->infoArray = newInfoArray;
+      dyld_info->uuidArray = newUUIDArray;
       dyld_info->infoArrayCount = count;
-      dyld_info->uuidArrayCount = count;
+      dyld_info->uuidArrayCount = count2;
     }
     return ret;
   } else if(flavor == TASK_EXTMOD_INFO) {
