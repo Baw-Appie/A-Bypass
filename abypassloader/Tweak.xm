@@ -79,44 +79,6 @@ int isSafePTR(int64_t ptr) {
 +(int)LA2 {
   return 0;
 }
-// +(id)GA {
-//   return @"%C9%E2w%28%D7%29Fk%FF%0D%DF%F5k%3B%C3q%8F%EB%C54m%22%25%BE%CF%5D%1B%1D%26%1C";
-// }
-// +(id)GA:(id)arg1 {
-//   HBLogError(@"[ABPattern sharedInstance] GA %@", arg1);
-//   return @"%C9%E2w%28%D7%29Fk%FF%0D%DF%F5k%3B%C3q%8F%EB%C54m%22%25%BE%CF%5D%1B%1D%26%1C";
-// }
-// +(void)SUID:(id)arg1 {
-//   HBLogError(@"[ABPattern sharedInstance] SUID %@", arg1);
-
-// }
-// +(id)GI {
-//   return @"c4a75b0b";
-// }
-// +(BOOL)SVUI1 {
-//   return true;
-// }
-// +(BOOL)SVUG2:(void *)arg1 {
-//   // arg1 = 아마도 struct f0urThlwO4XULZZZ4 (구조 공개 안됨)
-
-//   HBLogError(@"[ABASM] init~~~~");
-//   %orig;
-//   HBLogError(@"[ABASM] HI~~~~");
-//   // HBLogError(@"[ABASM] %d", *((int*)arg1)); // -108
-//   // HBLogError(@"[ABASM] %d", *((int*)arg1 + 0x8)); // -60
-//   // HBLogError(@"[ABASM] %d", *((int*)arg1 + 0x10)); // 28
-//   // HBLogError(@"[ABASM] %d", *((int*)arg1 + 0x18)); // -60
-//   // HBLogError(@"[ABASM] %d", *((int*)arg1 + 0x20)); // 36
-
-//   // // void *newarg1 = malloc(0x20);
-//   // *((int*)arg1) = 0x0;
-//   // *((int*)arg1 + 0x8) = 0x0;
-//   // *((int*)arg1 + 0x10) = 0x0;
-//   // *((int*)arg1 + 0x18) = 0x0;
-//   *((int*)arg1 + 0x20) = 300;
-//   // arg1 = newarg1;
-//   return true;
-// }
 %end
 %hook w0n6Y
 -(id)u0tutZS {
@@ -125,6 +87,7 @@ int isSafePTR(int64_t ptr) {
 %end
 %hook UIViewController
 - (void)presentViewController:(UIViewController *)viewControllerToPresent animated:(BOOL)flag completion:(void (^)(void))completion {
+  if(!([identifier isEqualToString:@"com.teamblind.blind"] || [identifier isEqualToString:@"finance.chai.app"])) return %orig;
   if([viewControllerToPresent isKindOfClass:[UIAlertController class]]) {
     if([((UIAlertController *)viewControllerToPresent).title isEqualToString:@"LIAPP"]) {
       self.view.window.hidden = true; 
@@ -1089,12 +1052,9 @@ int stat(const char *path, struct stat *result);
   return %orig;
 }
 
-// NSMutableDictionary *dladdresses = [NSMutableDictionary new];
 // %hookf(void *, dlsym, void *handle, const char *symbol) {
 //   NSString *sym = [NSString stringWithUTF8String:symbol];
 //   void *ret = %orig;
-//   HBLogError(@"dladdr-dlsym %@", sym);
-//   dladdresses[[NSString stringWithFormat:@"%p", ret]] = sym;
 //   NSArray *symbols = @[ @"MSHookFunction", @"MSHookMessageEx", @"MSFindSymbol", @"MSGetImageByName", @"ZzBuildHook", @"DobbyHook", @"LHHookFunctions", @"MSHookMemory", @"MSHookClassPair", @"_Z13flyjb_patternP8NSString", @"_Z9hms_falsev", @"rocketbootstrap_cfmessageportcreateremote", @"rocketbootstrap_cfmessageportexposelocal", @"rocketbootstrap_distributedmessagingcenter_apply", @"rocketbootstrap_look_up", @"rocketbootstrap_register", @"rocketbootstrap_unlock" ];
 //   if([symbols containsObject:sym]) return NULL;
 //   return ret;
@@ -1104,7 +1064,6 @@ int stat(const char *path, struct stat *result);
   if(ret && info) {
     NSString *dli_fname = @(info->dli_fname);
     if([dli_fname containsString:@"ABypass"]) {
-      // HBLogError(@"dladdr %@ %@", dli_fname, dladdresses[[NSString stringWithFormat:@"%p", addr]]);
       info->dli_fname = "/System/Library/Frameworks/UIKit.framework/UIKit";
     }
     if([dli_fname containsString:@"substitute"] ||
