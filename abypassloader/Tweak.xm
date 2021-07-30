@@ -1458,8 +1458,6 @@ typedef char int8;
 typedef int8 BYTE;
 %hookf(kern_return_t, task_info, task_name_t target_task, task_flavor_t flavor, task_info_t task_info_out, mach_msg_type_number_t *task_info_outCnt) {
   kern_return_t ret = %orig;
-  // 당근마켓 크래시
-  if([identifier isEqualToString:@"com.towneers.www"]) return ret;
   if (flavor == TASK_DYLD_INFO) {
     if (ret == KERN_SUCCESS) {
       struct task_dyld_info *task_info = (struct task_dyld_info *) task_info_out;
