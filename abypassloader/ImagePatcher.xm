@@ -284,7 +284,8 @@ uint8_t RET1[] = {
 
 // iXGuard
 void patch1(uint8_t* match) {
-  patchCode(findSA(match), RET, sizeof(RET));
+  patchCode(match-40, RET, sizeof(RET));
+  // patchCode(findSA(match), RET, sizeof(RET));
   // patchData(0x1019a26f4, 0xC0035FD6);
   //1019a26f4
   debugMsg(@"[ABASM] patched or1: %p", match - _dyld_get_image_vmaddr_slide(0));
@@ -305,28 +306,28 @@ void remove1() {
     0xFFC00000
   };
 
-  const uint64_t target2[] = {
-    0x39000000,
-    0x90000000,
-    0x90000000,
-    0x91000073,
-    0x7100053F,
-    0xF9000000,
-    0x540000A1
-  };
+  // const uint64_t target2[] = {
+  //   0x39000000,
+  //   0x90000000,
+  //   0x90000000,
+  //   0x91000073,
+  //   0x7100053F,
+  //   0xF9000000,
+  //   0x540000A1
+  // };
 
-  const uint64_t mask2[] = {
-    0xFF000000,
-    0x9F000000,
-    0x9F000000,
-    0xFF0000FF,
-    0xFFFFFFFF,
-    0xFF000000,
-    0xFFFFFFFF
-  };
+  // const uint64_t mask2[] = {
+  //   0xFF000000,
+  //   0x9F000000,
+  //   0x9F000000,
+  //   0xFF0000FF,
+  //   0xFFFFFFFF,
+  //   0xFF000000,
+  //   0xFFFFFFFF
+  // };
 
   findSegment2(target, mask, sizeof(target)/sizeof(uint64_t), &patch1);
-  findSegment2(target2, mask2, sizeof(target2)/sizeof(uint64_t), &patch1);
+  // findSegment2(target2, mask2, sizeof(target2)/sizeof(uint64_t), &patch1);
 }
 // LxShields
 void patch2(uint8_t* match) {
