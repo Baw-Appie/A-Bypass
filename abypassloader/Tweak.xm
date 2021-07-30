@@ -1478,30 +1478,34 @@ typedef int8 BYTE;
         newInfoArray[count] = dyld_info->infoArray[i];
         count++;
       }
-
       
       int count2 = 0;
       struct dyld_uuid_info *newUUIDArray = (struct dyld_uuid_info*)malloc(sizeof(struct dyld_uuid_info) * arrayCount);
       for(int i=0; i < dyld_info->uuidArrayCount; i++) {
+        NSString *lower = nil;
         const struct mach_header_64* mheader = (const struct mach_header_64*)dyld_info->uuidArray[i].imageLoadAddress;
         if (mheader->filetype == MH_DYLIB) {
           if(mheader->magic == MH_MAGIC_64 && mheader->ncmds > 0) {
             void *loadCmd = (void*)(mheader + 1);
             struct segment_command_64 *sc = (struct segment_command_64 *)loadCmd;
             for (int index = 0; index < mheader->ncmds; ++index, sc = (struct segment_command_64*)((BYTE*)sc + sc->cmdsize)) {
-              if (sc->cmd == LC_ID_DYLIB) {
-                struct dylib_command *dc = (struct dylib_command *)sc;
-                struct dylib dy = dc->dylib;
-                const char *detectedDyld = (char*)dc + dy.name.offset;
-                NSString *lower = [@(detectedDyld) lowercaseString];
-                if([[ABPattern sharedInstance] ozd:lower]) continue;
+
+              switch(sc->cmd) {
+                case LC_ID_DYLIB:
+                  struct dylib_command *dc = (struct dylib_command *)sc;
+                  struct dylib dy = dc->dylib;
+                  const char *detectedDyld = (char*)dc + dy.name.offset;
+                  lower = [@(detectedDyld) lowercaseString];
               }
             }
           }
         }
 
-        newUUIDArray[count2] = dyld_info->uuidArray[i];
-        count2++;
+        if(lower) {
+          if([[ABPattern sharedInstance] ozd:lower]) continue;
+          newUUIDArray[count2] = dyld_info->uuidArray[i];
+          count2++;
+        }
       }
 
       dyld_info->infoArray = newInfoArray;
