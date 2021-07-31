@@ -284,8 +284,9 @@ uint8_t RET1[] = {
 
 // iXGuard
 void patch1(uint8_t* match) {
-  patchCode(match-40, RET, sizeof(RET));
-  // patchCode(findSA(match), RET, sizeof(RET));
+  patchCode(findS(match), RET, sizeof(RET));
+  // patchCode(match-40, RET, sizeof(RET));
+  patchCode(findSA(match), RET, sizeof(RET));
   // patchData(0x1019a26f4, 0xC0035FD6);
   //1019a26f4
   debugMsg(@"[ABASM] patched or1: %p", match - _dyld_get_image_vmaddr_slide(0));
