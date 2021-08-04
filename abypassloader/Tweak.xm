@@ -204,6 +204,11 @@ int isSafePTR(int64_t ptr) {
   ;
 }
 %end
+%hook SplashViewController
+-(void)lxShieldCheck {
+  objcInvoke(self, @"checkAppInfo");
+}
+%end
 %hook amsLibrary
 - (long long)a3142:(id)arg1 {
   if([identifier isEqualToString:@"com.samsungfire.sfm"] || [identifier isEqualToString:@"kr.co.kdb.smart.SmartKDB"]) return %orig;
@@ -1934,7 +1939,7 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
     loadingProgress(@"5");
 
     if(objc_getClass("BinaryChecker") || objc_getClass("mVaccine")) %init(BinaryChecker);
-    if([identifier isEqualToString:@"com.kakaogames.gdtskr"] || [identifier isEqualToString:@"com.hyundaicapital.myAccount"] || [identifier isEqualToString:@"com.payprotocolwallet.kr"]) remove2();
+    if([identifier isEqualToString:@"com.kakaogames.gdtskr"] || [identifier isEqualToString:@"com.hyundaicapital.myAccount"] || [identifier isEqualToString:@"com.payprotocolwallet.kr"] || [identifier isEqualToString:@"com.sktelecom.tauth"]) remove2();
     if([identifier isEqualToString:@"com.nice.MyCreditManager"] || [identifier isEqualToString:@"com.niceid.niceipin"] || [identifier isEqualToString:@"com.korail.KorailTalk"]) {
       remove3();
       remove4();

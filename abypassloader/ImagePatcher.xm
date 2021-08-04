@@ -107,14 +107,16 @@ uint8_t *findSA(const uint8_t *target) {
 
   while (current >= start) {
     uint32_t op = *current;
-
-    if (!((op & 0xFFC003E0) == 0xA98003E0
-      && (op & 0xFFC003E0) == 0x6D8003E0
-      && (op & 0xFFC003E0) == 0xD10003E0)) {
+    if ((op & 0xFFC003E0) == 0xA98003E0
+      || (op & 0xFFC003E0) == 0xA90003E0
+      || (op & 0xFFC003E0) == 0x6D8003E0
+      || (op & 0xFFC003E0) == 0xD10003E0) {
         uint8_t *prev = (uint8_t *)(current-1);
-        if ((*(uint32_t *)prev & 0xFFC003E0) == 0xA98003E0
-            || (*(uint32_t *)prev & 0xFFC003E0) == 0x6D8003E0
-            || (*(uint32_t *)prev & 0xFFC003E0) == 0xD10003E0) {  //STP x, y, [SP,#-imm]!
+        uint32_t pop = *(uint32_t *)prev;
+        if (!((pop & 0xFFC003E0) == 0xA98003E0
+                  || (pop & 0xFFC003E0) == 0xA90003E0
+                  || (pop & 0xFFC003E0) == 0x6D8003E0
+                  || (pop & 0xFFC003E0) == 0xD10003E0)) {
           return prev;
         }
     }
@@ -285,12 +287,9 @@ uint8_t RET1[] = {
 // iXGuard
 void patch1(uint8_t* match) {
   patchCode(findS(match), RET, sizeof(RET));
-  // patchCode(match-40, RET, sizeof(RET));
   patchCode(findSA(match), RET, sizeof(RET));
-  // patchData(0x1019a26f4, 0xC0035FD6);
-  //1019a26f4
-  debugMsg(@"[ABASM] patched or1: %p", match - _dyld_get_image_vmaddr_slide(0));
-  debugMsg(@"[ABASM] patched r1: %p", findSA(match) - _dyld_get_image_vmaddr_slide(0));
+  // debugMsg(@"[ABASM] patched or1: %p", match - _dyld_get_image_vmaddr_slide(0));
+  // debugMsg(@"[ABASM] patched r1: %p", findSA(match) - _dyld_get_image_vmaddr_slide(0));
 }
 void remove1() {
   const uint64_t target[] = {
@@ -307,37 +306,16 @@ void remove1() {
     0xFFC00000
   };
 
-  // const uint64_t target2[] = {
-  //   0x39000000,
-  //   0x90000000,
-  //   0x90000000,
-  //   0x91000073,
-  //   0x7100053F,
-  //   0xF9000000,
-  //   0x540000A1
-  // };
-
-  // const uint64_t mask2[] = {
-  //   0xFF000000,
-  //   0x9F000000,
-  //   0x9F000000,
-  //   0xFF0000FF,
-  //   0xFFFFFFFF,
-  //   0xFF000000,
-  //   0xFFFFFFFF
-  // };
-
   findSegment2(target, mask, sizeof(target)/sizeof(uint64_t), &patch1);
-  // findSegment2(target2, mask2, sizeof(target2)/sizeof(uint64_t), &patch1);
 }
 // LxShields
 void patch2(uint8_t* match) {
-  // debugMsg(@"[ABASM] patched r2: %p", match - _dyld_get_image_vmaddr_slide(0));
-  // debugMsg(@"[ABASM] patched ret r2: %p", findS(match) - _dyld_get_image_vmaddr_slide(0));
   patchCode(findS(match), RET, sizeof(RET));
 }
 void patch2_1(uint8_t* match) {
-  patchCode(findS(match), RET0, sizeof(RET0));
+  patchCode(findSA(match), RET0, sizeof(RET0));
+  // debugMsg(@"[ABASM] patched r2: %p", match - _dyld_get_image_vmaddr_slide(0));
+  // debugMsg(@"[ABASM] patched ret r2: %p", findSA(match) - _dyld_get_image_vmaddr_slide(0));
 }
 void remove2() {
   const uint8_t target[] = {
@@ -377,6 +355,17 @@ void remove2() {
     0xA9, 0x6A, 0x47, 0xB9, 
   };
   findSegment(target4, sizeof(target4), &patch2);
+
+  // SKT PASS(3.8.6) 기준 오프셋
+  // -[SplashViewController lxShieldCheck] 에서 찾음
+  // const uint8_t target5[] = {
+  //   0xE2, 0x01, 0x36, 0x0A, // bic
+  //   0xD6, 0x02, 0x2F, 0x0A, // bic
+  //   0x28, 0x01, 0x08, 0x2A, // orr
+  //   0x49, 0x00, 0x16, 0x2A, // orr
+  //   0x08, 0x01, 0x09, 0x4A, // eor
+  // };
+  // findSegment(target5, sizeof(target5), &patch2_1);
 }
 // AppSolid Legacy
 void patch3(uint8_t* match) {
