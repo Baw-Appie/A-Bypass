@@ -112,13 +112,7 @@ uint8_t *findSA(const uint8_t *target) {
       || (op & 0xFFC003E0) == 0x6D8003E0
       || (op & 0xFFC003E0) == 0xD10003E0) {
         uint8_t *prev = (uint8_t *)(current-1);
-        uint32_t pop = *(uint32_t *)prev;
-        if (!((pop & 0xFFC003E0) == 0xA98003E0
-                  || (pop & 0xFFC003E0) == 0xA90003E0
-                  || (pop & 0xFFC003E0) == 0x6D8003E0
-                  || (pop & 0xFFC003E0) == 0xD10003E0)) {
-          return prev;
-        }
+        return prev;
     }
     current -= 1;
   }
