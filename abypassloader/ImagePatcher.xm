@@ -98,6 +98,15 @@ uint8_t *findS(const uint8_t *target) {
 
   return (uint8_t *)target;
 }
+
+bool isSTP(uint32_t op) {
+  return ((op & 0xFFC003E0) == 0xA98003E0
+      || (op & 0xFFC003E0) == 0xA90003E0
+      || (op & 0xFFC003E0) == 0x6D8003E0
+      || (op & 0xFFC003E0) == 0xD10003E0
+  );
+}
+
 uint8_t *findSA(const uint8_t *target) {
   const struct mach_header_64 *header = (const struct mach_header_64*) _dyld_get_image_header(0);
   const struct section_64 *executable_section = getsectbynamefromheader_64(header, "__TEXT", "__text");
@@ -105,16 +114,13 @@ uint8_t *findSA(const uint8_t *target) {
 
   uint32_t *current = (uint32_t *)target;
 
-  while (current >= start) {
+  for(; current >= start; current -= 1) {
     uint32_t op = *current;
-    if ((op & 0xFFC003E0) == 0xA98003E0
-      || (op & 0xFFC003E0) == 0xA90003E0
-      || (op & 0xFFC003E0) == 0x6D8003E0
-      || (op & 0xFFC003E0) == 0xD10003E0) {
-        uint8_t *prev = (uint8_t *)(current-1);
-        return prev;
+    if (isSTP(op)) {
+        uint8_t *next = (uint8_t *)(current-1);
+        if(isSTP(*(uint32_t *)next)) continue;
+        return (uint8_t *)current;
     }
-    current -= 1;
   }
 
   return (uint8_t *)target;
@@ -178,6 +184,11 @@ bool patchCode(void *target, const void *data, size_t size) {
 
   return true;
 }
+
+
+
+
+
 
 
 void patchSYS_access(uint8_t* match) {
@@ -265,6 +276,12 @@ void removeSYS_symlink() {
   findSegment(target, sizeof(target), &patchSYS_symlink);
 }
 
+
+
+
+
+
+
 uint8_t RET[] = {
   0xC0, 0x03, 0x5F, 0xD6  //RET
 };
@@ -282,8 +299,9 @@ uint8_t RET1[] = {
 void patch1(uint8_t* match) {
   patchCode(findS(match), RET, sizeof(RET));
   patchCode(findSA(match), RET, sizeof(RET));
-  // debugMsg(@"[ABASM] patched or1: %p", match - _dyld_get_image_vmaddr_slide(0));
-  // debugMsg(@"[ABASM] patched r1: %p", findSA(match) - _dyld_get_image_vmaddr_slide(0));
+  debugMsg(@"[ABASM] patched or1: %p", match - _dyld_get_image_vmaddr_slide(0));
+  debugMsg(@"[ABASM] patched r1: %p", findS(match) - _dyld_get_image_vmaddr_slide(0));
+  debugMsg(@"[ABASM] patched r1 SA: %p", findSA(match) - _dyld_get_image_vmaddr_slide(0));
 }
 void remove1() {
   const uint64_t target[] = {
@@ -308,8 +326,8 @@ void patch2(uint8_t* match) {
 }
 void patch2_1(uint8_t* match) {
   patchCode(findSA(match), RET0, sizeof(RET0));
-  // debugMsg(@"[ABASM] patched r2: %p", match - _dyld_get_image_vmaddr_slide(0));
-  // debugMsg(@"[ABASM] patched ret r2: %p", findSA(match) - _dyld_get_image_vmaddr_slide(0));
+  // debugMsg(@"[ABASM] patched r2-1: %p", match - _dyld_get_image_vmaddr_slide(0));
+  // debugMsg(@"[ABASM] patched ret r2-1: %p", findSA(match) - _dyld_get_image_vmaddr_slide(0));
 }
 void remove2() {
   const uint8_t target[] = {
@@ -326,10 +344,9 @@ void remove2() {
   };
   findSegment(target2, sizeof(target2), &patch2);
 
-
-  // TOOD: 추후 findSegment2로 교체
-  // Paycoin(1.1.12) 기준 오프셋
-  // 탈옥 감지 결과 조회, -[Global checkLxShield:]에서 찾음.
+  // 탈옥 감지 결과 조회
+  // Paycoin: -[Global checkLxShield:]
+  // SKT PASS: -[SplashViewController lxShieldCheck]
   const uint8_t target3[] = {
     0x39, 0x01, 0x36, 0x0A,
     0xC9, 0x02, 0x29, 0x0A,
@@ -339,27 +356,6 @@ void remove2() {
     0x22, 0x03, 0x02, 0x2A, 
   };
   findSegment(target3, sizeof(target3), &patch2_1);
-
-  // lxShield 초기화, 패치 안하면 30초 뒤 튕김.
-  // INVALID_ADDRESS 이용한 고의적 크래시는 추후 전역적으로 수정 필요.
-  const uint8_t target4[] = {
-    0x49, 0x01, 0x28, 0x0A,
-    0x08, 0x01, 0x2A, 0x0A,
-    0x28, 0x01, 0x08, 0x2A,
-    0xA9, 0x6A, 0x47, 0xB9, 
-  };
-  findSegment(target4, sizeof(target4), &patch2);
-
-  // SKT PASS(3.8.6) 기준 오프셋
-  // -[SplashViewController lxShieldCheck] 에서 찾음
-  // const uint8_t target5[] = {
-  //   0xE2, 0x01, 0x36, 0x0A, // bic
-  //   0xD6, 0x02, 0x2F, 0x0A, // bic
-  //   0x28, 0x01, 0x08, 0x2A, // orr
-  //   0x49, 0x00, 0x16, 0x2A, // orr
-  //   0x08, 0x01, 0x09, 0x4A, // eor
-  // };
-  // findSegment(target5, sizeof(target5), &patch2_1);
 }
 // AppSolid Legacy
 void patch3(uint8_t* match) {
@@ -567,19 +563,6 @@ void remove6() {
   findSegment2(ix_sysCheck_crash_target, ix_sysCheck_crash_mask, sizeof(ix_sysCheck_crash_target)/sizeof(uint64_t), &patch6_5);
 }
 
-void patch7(uint8_t* match) {
-  uint8_t patch[] = {
-    0x40, 0x00, 0x80, 0xD2 // MOV  X16, #2
-  };
-  patchCode(match, patch, sizeof(patch));
-}
-void remove7() {
-  const uint8_t target[] = {
-    0x01, 0x10, 0x00, 0xD4
-  };
-  findSegment(target, sizeof(target), &patch7);
-}
-
 
 
 
@@ -652,54 +635,15 @@ void hookSymbol1WithPrivateImage(const char *string, const char *image) {
 
 BOOL enableSysctlHook = false;
 
-void hook_svc_pre_call(RegisterContext *reg_ctx, const HookEntryInfo *info) {
+void hookingSVC80Handler(RegisterContext *reg_ctx, const HookEntryInfo *info) {
     int num_syscall = (int)(uint64_t)(reg_ctx->general.regs.x16);
     char *arg1 = (char *)reg_ctx->general.regs.x0;
     debugMsg(@"[ABZZ] System PRECALL %d %p", num_syscall, info->target_address);
     
-    // if (num_syscall == SYS_syscall) {
-    //     int arg1 = (int)(uint64_t)(reg_ctx->general.regs.x1);
-    //     if (request == SYS_ptrace && arg1 == PT_DENY_ATTACH) {
-    //         *(unsigned long *)(&reg_ctx->general.regs.x1) = 10;
-    //         // debugMsg(@"[ABZZ] catch 'SVC #0x80; syscall(ptrace)' and bypass");
-    //     } else if(request == SYS_access) {
-    //       char *arg1 = (char *)reg_ctx->general.regs.x1;
-    //       NSString *nsArg1 = [[NSString alloc] initWithUTF8String:arg1];
-    //       // debugMsg(@"[ABZZ] SVC ACCESS DETECTED!!!! %@", nsArg1);
-    //       if(![[ABPattern sharedInstance] u:nsArg1 i:30002]) {
-    //         // debugMsg(@"[ABZZ] BLOCKED!!!!");
-    //         const char **arg1 = (const char **)&reg_ctx->general.regs.x1;
-    //         const char *path = "/ABypass.With.ABZZ";
-    //         *arg1 = path;
-    //       }
-    //     }
-    // } else if (num_syscall == SYS_ptrace) {
-    //     request = (int)(uint64_t)(reg_ctx->general.regs.x0);
-    //     if (request == PT_DENY_ATTACH) {
-    //         *(unsigned long *)(&reg_ctx->general.regs.x0) = 10;
-    //         // debugMsg(@"[ABZZ] catch 'SVC-0x80; ptrace' and bypass");
-    //     }
-
-    // if(num_syscall == SYS_getxattr) {
-    //   debugMsg(@"[ABZZ] getxattr %s", arg1);
-    // }
     if(num_syscall == SYS_symlink) {
       char *arg2 = (char *)reg_ctx->general.regs.x1;
       [[ABPattern sharedInstance] usk:@(arg1) n:@(arg2)];
-      // HBLogError(@"[ABZZ] symlink %s %s", arg1, arg2);
     }
-    // if(num_syscall == SYS_fork) {
-    //   *(unsigned long *)(&reg_ctx->general.regs.x16) = (unsigned long long)0;
-    // }
-    // if(num_syscall == SYS_getfsstat64) {
-    //   *(unsigned long *)(&reg_ctx->general.regs.x16) = 0;
-    // }
-    // if(num_syscall == SYS_unlink) {
-    //  HBLogError(@"[ABZZ] unlink %s", arg1);
-    // }
-    // if(num_syscall == SYS_sysctl) {
-    //   enableSysctlHook = true;
-    // }
     if(num_syscall == SYS_open || num_syscall == SYS_access || num_syscall == SYS_statfs64 || num_syscall == SYS_statfs || num_syscall == SYS_lstat64 || num_syscall == SYS_stat64 || num_syscall == SYS_rename || num_syscall == SYS_setxattr || num_syscall == SYS_pathconf) {
         debugMsg(@"[ABZZ] SYS_open with SVC 80, %s", arg1);
         if([@(arg1) isEqualToString:@"/dev/urandom"]) {
@@ -713,33 +657,13 @@ void hook_svc_pre_call(RegisterContext *reg_ctx, const HookEntryInfo *info) {
         }
     }
 }
-void hook_svc_post_call(RegisterContext *reg_ctx, const HookEntryInfo *info) {
-  int num_syscall = (int)(uint64_t)(reg_ctx->general.regs.x16);
-  // void *orig = (void *)((uint8_t*)(info->target_address)-4);
-  debugMsg(@"[ABZZ] System POSTCALL %d %p", num_syscall, orig);
-  if(num_syscall == SYS_fork) {
-    *(unsigned long *)(&reg_ctx->general.regs.x1) = (unsigned long long)-1;
-  }
-  if(enableSysctlHook && num_syscall == SYS_sysctl) {
-    struct kinfo_proc *info = (struct kinfo_proc *)(&reg_ctx->general.regs.x4);
-    if((info->kp_proc.p_flag & P_TRACED) == P_TRACED) {
-      info->kp_proc.p_flag &= ~P_TRACED;
-    }
-  }
-}
 
 void hookSVC80Real(uint8_t* match) {
-
-  // if(*((uint16_t*)match+4) != 0x80D2) return;
-
   debugMsg(@"[ABZZ] Hooking %p!", match);
 
   dobby_enable_near_branch_trampoline();
-  DobbyInstrument((void *)(match), (DBICallTy)hook_svc_pre_call);
+  DobbyInstrument((void *)(match), (DBICallTy)hookingSVC80Handler);
   dobby_disable_near_branch_trampoline();
-  
-  // 일부 앱 충돌
-  // DobbyInstrument((void *)(match+4), (DBICallTy)hook_svc_post_call);
 }
 
 void hookingSVC80() {
@@ -747,17 +671,6 @@ void hookingSVC80() {
     0x01, 0x10, 0x00, 0xD4
   };
   findSegmentForDyldImage(target, sizeof(target), &hookSVC80Real);
-}
-
-void removeSVC80Real(uint8_t* match) {
-  _hookSymbol0(findS(match));
-}
-
-void removingSVC80() {
-  const uint8_t target[] = {
-    0x01, 0x10, 0x00, 0xD4
-  };
-  findSegmentForDyldImage(target, sizeof(target), &removeSVC80Real);
 }
 
 void hookingAccessSVC80Handler(RegisterContext *reg_ctx, const HookEntryInfo *info) {

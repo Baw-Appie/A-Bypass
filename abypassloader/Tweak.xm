@@ -205,9 +205,9 @@ int isSafePTR(int64_t ptr) {
 }
 %end
 %hook SplashViewController
--(void)lxShieldCheck {
-  objcInvoke(self, @"checkAppInfo");
-}
+// -(void)lxShieldCheck {
+//   objcInvoke(self, @"checkAppInfo");
+// }
 %end
 %hook amsLibrary
 - (long long)a3142:(id)arg1 {
