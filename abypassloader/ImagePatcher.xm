@@ -562,6 +562,19 @@ void remove6() {
 
   findSegment2(ix_sysCheck_crash_target, ix_sysCheck_crash_mask, sizeof(ix_sysCheck_crash_target)/sizeof(uint64_t), &patch6_5);
 }
+// AirArmor
+void patch7(uint8_t* match) {
+  patchCode(findSA(match), RET, sizeof(RET));
+}
+void remove7() {
+  const uint8_t target[] = {
+    0x09, 0xC1, 0x6B, 0x39,
+    0xC9, 0x00, 0x00, 0x37,
+    0x29, 0x00, 0x80, 0x52,
+    0x09, 0xC1, 0x2B, 0x39
+  };
+  findSegment(target, sizeof(target), &patch7);
+}
 
 
 

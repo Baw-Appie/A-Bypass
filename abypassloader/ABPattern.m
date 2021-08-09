@@ -102,11 +102,11 @@
   if([path hasSuffix:@"xargs"] || [path hasSuffix:@"unzip2"] || [path hasSuffix:@"libsubstrate.dylib"] || [path hasSuffix:@"substrate.h"] || [path hasSuffix:@"recache"]) return false;
   if(([path hasPrefix:@"/Library/MobileSubstrate/"] || [path hasPrefix:@"/usr/lib/TweakInject/"]) && ([path hasSuffix:@".dylib"] || [path hasSuffix:@".plist"])) {
     if([path isEqualToString:@"/Library/MobileSubstrate/MobileSubstrate.dylib"]) return false;
-    if(![u containsObject:path]) {
+    if(![[u copy] containsObject:path]) {
       [u addObject:path];
       return true;
     } else {
-      if(![k containsObject:path]) {
+      if(![[k copy] containsObject:path]) {
         [k addObject:path];
         return true;
       }

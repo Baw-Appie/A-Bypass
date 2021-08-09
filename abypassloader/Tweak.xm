@@ -1608,47 +1608,31 @@ static int hook_open(const char *path, int oflag, ...) {
 
 int (*orig_syscall)(int number, ...);
 int hooked_syscall(int number, ...) {
-    int request;
-    pid_t pid;
-    caddr_t addr;
-    int data;
-    char *path;
-    
-    // fake stack, why use `char *` ? hah
-    char *stack[8];
-    
-    va_list args;
-    va_start(args, number);
-    
-    // get the origin stack args copy.(must >= origin stack args)
-    memcpy(stack, args, 8 * 8);
-    
-    if (number == SYS_ptrace) {
-        request = va_arg(args, int);
-        pid = va_arg(args, pid_t);
-        addr = va_arg(args, caddr_t);
-        data = va_arg(args, int);
-        va_end(args);
-        if (request == PT_DENY_ATTACH) {
-            return 0;
-        }
-    } else if(number == SYS_access) {
-      path = va_arg(args, char *);
-      va_end(args);
-      if(![[ABPattern sharedInstance] u:@(path) i:20026]) {
-        errno = ENOENT;
-        return -1;
-      }
-    } else {
-        va_end(args);
+  HBLogError(@"ABPatternsyscall %d", number);
+
+  char *path;  
+  char *stack[8];
+  
+  va_list args;
+  va_start(args, number);
+  
+  memcpy(stack, args, 8 * 8);
+  
+  if (number == SYS_proc_info) {
+    return KERN_FAILURE;
+  } else if(number == SYS_access) {
+    path = va_arg(args, char *);
+    va_end(args);
+    if(![[ABPattern sharedInstance] u:@(path) i:20026]) {
+      errno = ENOENT;
+      return -1;
     }
-    // must understand the principle of `function call`. `parameter pass` is
-    // before `switch to target` so, pass the whole `stack`, it just actually
-    // faked an original stack. Do not pass a large structure,  will be replace with
-    // a `hidden memcpy`.
-    int x = orig_syscall(number, stack[0], stack[1], stack[2], stack[3], stack[4],
-                         stack[5], stack[6], stack[7]);
-    return x;
+  } else {
+    va_end(args);
+  }
+
+  int x = orig_syscall(number, stack[0], stack[1], stack[2], stack[3], stack[4], stack[5], stack[6], stack[7]);
+  return x;
 }
 
 
@@ -1945,6 +1929,7 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
       remove4();
     }
     if(objc_getClass("iXManager")) remove6();
+    if(objc_getClass("SDFXIOSHelper")) remove7();
 
     loadingProgress(@"6");
 
