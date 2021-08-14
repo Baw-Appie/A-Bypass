@@ -1773,6 +1773,7 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
       @"com.shinhancard.SmartShinhan2",
       @"com.kebhana.hanapush",
       @"uk.co.barclays.bmbappstore",
+      @"com.hanabank.smart.HanaNCBS"
     ];
 
     ABSI.hookSVC80 = @[
