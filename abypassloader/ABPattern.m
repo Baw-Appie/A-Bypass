@@ -20,6 +20,7 @@
     u = [NSMutableArray new];
     // 이거 절대 l 아님.. 대문자 i 임!!
     I = [NSMutableDictionary new];
+    o = [NSMutableDictionary new];
   }
   return self;
 }
@@ -102,14 +103,14 @@
   if([path hasSuffix:@"xargs"] || [path hasSuffix:@"unzip2"] || [path hasSuffix:@"libsubstrate.dylib"] || [path hasSuffix:@"substrate.h"] || [path hasSuffix:@"recache"]) return false;
   if(([path hasPrefix:@"/Library/MobileSubstrate/"] || [path hasPrefix:@"/usr/lib/TweakInject/"]) && ([path hasSuffix:@".dylib"] || [path hasSuffix:@".plist"])) {
     if([path isEqualToString:@"/Library/MobileSubstrate/MobileSubstrate.dylib"]) return false;
-    if(![[u copy] containsObject:path]) {
-      [u addObject:path];
+    if(!o[path]) {
+      o[path] = @1;
       return true;
-    } else {
-      if(![[k copy] containsObject:path]) {
-        [k addObject:path];
-        return true;
-      }
+    } else if([o[path] isEqual:@1]) {
+      o[path] = @2;
+      return true;
+    } else if([o[path] isEqual:@2]) {
+      return false;
     }
   }
   for(NSString *search in z) {

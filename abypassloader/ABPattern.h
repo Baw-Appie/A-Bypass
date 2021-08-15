@@ -20,6 +20,7 @@
     NSMutableArray *z;
     NSMutableArray *u;
     NSMutableDictionary *I;
+    NSMutableDictionary *o;
 }
 @property (nonatomic) BOOL a;
 @property (nonatomic, retain) NSNumber *b;
