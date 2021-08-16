@@ -1813,7 +1813,8 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
       @"be.bmid.itsme",
       // @"com.sktelecom.tauth",
       @"com.KoreaExpressSmt",
-      @"com.samsungpop.ios.masset"
+      @"com.samsungpop.ios.masset",
+      @"com.hyundaicard.mpointmall"
     ];
 
     ABSI.noHookingPlz = @[
