@@ -1524,20 +1524,13 @@ typedef int8 BYTE;
   }
   return %orig;
 }
-// %hookf(Boolean, CFStringGetCString, CFStringRef theString, char *buffer, CFIndex bufferSize, CFStringEncoding encoding) {
-//   HBLogError(@"[ABPattern sharedInstance] %@", (__bridge NSString *)theString);
-//   return %orig;
-// }
 
 %hookf(kern_return_t, vm_region_recurse_64, vm_map_t map, vm_address_t *address, vm_size_t *size, uint32_t *depth, vm_region_submap_info_t info64_t, mach_msg_type_number_t *infoCnt) {
   kern_return_t ret = %orig;
   
-  // if(ret == KERN_SUCCESS && *infoCnt == VM_REGION_SUBMAP_INFO_COUNT_64) {
   if(ret == KERN_SUCCESS) {
-    // HBLogError(@"[ABPattern shared] vm_region_recurse_64 success");
     vm_region_submap_info *info = (vm_region_submap_info *)info64_t;
     if(info->is_submap) {
-      // HBLogError(@"[ABPattern sharedInstance] vm_region_recurse_64 protection %d", info->protection);
       info->protection = 3;
     }
   }
@@ -1545,41 +1538,6 @@ typedef int8 BYTE;
   return ret;
   // return KERN_FAILURE;
 }
-
-// %hookf(int, sysctlbyname, const char *_name, void *oldp, size_t oldlenp, void *newp, size_t newlen) {
-//   NSString *name = @(_name);
-//   NSArray *sysctls = @[
-//     @"security.mac.socket_enforce",
-//     @"security.mac.pipe_enforce",
-//     @"security.mac.system_enforce",
-//     @"security.mac.vm_enforce",
-//     @"security.mac.vnode_enforce",
-//     @"security.mac.posixshm_enforce",
-//     @"security.mac.sysvmsg_enforce",
-//     @"security.mac.posixsem_enforce",
-//     @"security.mac.device_enforce",
-//     @"security.mac.proc_enforce",
-//     @"security.mac.sysvshm_enforce",
-//     @"security.mac.sysvsem_enforce"
-//   ];
-//   if([sysctls containsObject:name]) {
-//     oldp = (void*)0xFAFAFAFA;
-//     return 0;
-//   }
-//   HBLogError(@"[ABPattern sharedInstance] %@", name);
-//   return %orig;
-// }
-
-// kern_return_t task_get_special_port(task_inspect_t task, int which_port, mach_port_t *special_port);
-// kern_return_t task_get_exception_ports(task_t task, exception_mask_t exception_mask, exception_mask_array_t masks, mach_msg_type_number_t *masksCnt, exception_handler_array_t old_handlers, exception_behavior_array_t old_behaviors, exception_flavor_array_t old_flavors);
-// %hookf(kern_return_t, task_get_special_port, task_inspect_t task, int which_port, mach_port_t *special_port) {
-//   kern_return_t ret = %orig;
-//   return ret;
-// }
-// %hookf(kern_return_t, task_get_exception_ports, task_t task, exception_mask_t exception_mask, exception_mask_array_t masks, mach_msg_type_number_t *masksCnt, exception_handler_array_t old_handlers, exception_behavior_array_t old_behaviors, exception_flavor_array_t old_flavors) {
-//   kern_return_t ret = %orig;
-//   return ret;
-// }
 %end
 
 
@@ -1696,6 +1654,21 @@ static char* my_strstr(char* str1, const char* str2) {
 }
 %end
 
+%group toss
+%hook UILabel
+-(void)drawRect:(id)arg1 {
+  NSString *ret = self.text;
+  if([ret containsString:@"금융의 모든 것"]) {
+    [self setText:@"차단의 모든 것\n토스로 간편하게"];
+  } else if([ret containsString:@"토스는 안전합니다"]) {
+    NSString *version = [[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"];
+    [self setText:[NSString stringWithFormat:@"Toss(%@)을\nA-Bypass로 실행하고 있습니다.", version]];
+  }
+  %orig;
+}
+%end
+%end
+
 void showProgress() { [center callExternalMethod:@selector(handleUpdateLicense:) withArguments:@{ @"type": @3, @"max": @"10" }]; }
 void loadingProgress(NSString *per) { [center callExternalMethod:@selector(handleUpdateLicense:) withArguments:@{ @"type": @4, @"per": per, @"max": @"10" }]; }
 void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:) withArguments:@{ @"type": @5 }]; }
@@ -1704,7 +1677,7 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
   // return;
   identifier = [NSBundle mainBundle].bundleIdentifier;    
   center = [MRYIPCCenter centerNamed:@"com.rpgfarm.a-bypass"];
-  [NSThread sleepForTimeInterval:0.15];
+  // [NSThread sleepForTimeInterval:0.15];
   showProgress();
 
   NSFileManager *manager = [NSFileManager defaultManager];
@@ -1841,6 +1814,7 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
     if([ABSI.hookSVC80 containsObject:identifier]) hookingSVC80();
 
     if([identifier isEqualToString:@"com.vivarepublica.cash"]) {
+      if(DEBUG) %init(toss);
       if(!objc_getClass("StockNewsdmManager")) {
         NSString *version = [[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"];
         if([version isEqualToString:@"5.5.0"]) {
