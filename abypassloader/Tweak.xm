@@ -71,6 +71,15 @@ int isSafePTR(int64_t ptr) {
 }
 
 %group framework
+// %hook CTCarrier
+// -(NSString *)mobileNetworkCode {
+//   return @"08";
+// }
+// -(NSString *)mobileCountryCode {
+//   return @"450";
+// }
+// %end
+
 // TODO: 이거 없이 패치하기. 
 %hook Liapp
 +(int)LA1 {
@@ -1654,21 +1663,6 @@ static char* my_strstr(char* str1, const char* str2) {
 }
 %end
 
-%group toss
-%hook UILabel
--(void)drawRect:(id)arg1 {
-  NSString *ret = self.text;
-  if([ret containsString:@"금융의 모든 것"]) {
-    [self setText:@"차단의 모든 것\n토스로 간편하게"];
-  } else if([ret containsString:@"토스는 안전합니다"]) {
-    NSString *version = [[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"];
-    [self setText:[NSString stringWithFormat:@"Toss(%@)을\nA-Bypass로 실행하고 있습니다.", version]];
-  }
-  %orig;
-}
-%end
-%end
-
 void showProgress() { [center callExternalMethod:@selector(handleUpdateLicense:) withArguments:@{ @"type": @3, @"max": @"10" }]; }
 void loadingProgress(NSString *per) { [center callExternalMethod:@selector(handleUpdateLicense:) withArguments:@{ @"type": @4, @"per": per, @"max": @"10" }]; }
 void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:) withArguments:@{ @"type": @5 }]; }
@@ -1814,7 +1808,6 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
     if([ABSI.hookSVC80 containsObject:identifier]) hookingSVC80();
 
     if([identifier isEqualToString:@"com.vivarepublica.cash"]) {
-      if(DEBUG) %init(toss);
       if(!objc_getClass("StockNewsdmManager")) {
         NSString *version = [[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"];
         if([version isEqualToString:@"5.5.0"]) {

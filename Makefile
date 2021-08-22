@@ -1,5 +1,6 @@
 TARGET = iphone:clang:12.2:12.2
 ARCHS = arm64 arm64e
+PREFIX="/Library/Developer/Toolchains/Xcode11.xctoolchain/usr/bin/"
 # STRIP = 0
 
 CURDIR := $(shell pwd)

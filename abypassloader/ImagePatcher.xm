@@ -416,7 +416,6 @@ struct ix_verify_info {
 
 int (*orig_ix_sysCheckStart)(struct ix_detected_pattern **p_info);
 int hook_ix_sysCheckStart(struct ix_detected_pattern **p_info) {
-  // orig_ix_sysCheckStart(p_info);
   struct ix_detected_pattern *patternInfo = (struct ix_detected_pattern*)malloc(sizeof(struct ix_detected_pattern));
   strcpy(patternInfo->resultCode, "0000");
   strcpy(patternInfo->object, "SYSTEM_OK");
@@ -427,7 +426,6 @@ int hook_ix_sysCheckStart(struct ix_detected_pattern **p_info) {
 
 int (*orig_ix_sysCheck_gamehack)(struct ix_detected_pattern **p_info, struct ix_detected_pattern_list_gamehack **p_list_gamehack);
 int hook_ix_sysCheck_gamehack(struct ix_detected_pattern **p_info, struct ix_detected_pattern_list_gamehack **p_list_gamehack) {
-  // orig_ix_sysCheck_gamehack(p_info, p_list_gamehack);
   struct ix_detected_pattern *patternInfo = (struct ix_detected_pattern*)malloc(sizeof(struct ix_detected_pattern));
   struct ix_detected_pattern_list_gamehack *patternList = (struct ix_detected_pattern_list_gamehack*)malloc(sizeof(struct ix_detected_pattern_list_gamehack));
 
@@ -451,16 +449,19 @@ int hook_ix_sysCheck_integrity(void **arg1, struct ix_verify_info *p_integrity_i
 
 void patch6(uint8_t* match) {
   MSHookFunction((void *)findS(match), (void *)hook_ix_sysCheckStart, (void **)&orig_ix_sysCheckStart);
+  debugMsg(@"[ABASM] finded6 %p", match-_dyld_get_image_vmaddr_slide(0));
 }
 void patch6_1(uint8_t* match) {
   MSHookFunction((void *)findS(match), (void *)hook_ix_sysCheck_gamehack, (void **)&orig_ix_sysCheck_gamehack);
+  debugMsg(@"[ABASM] finded6_1 %p", match-_dyld_get_image_vmaddr_slide(0));
+}
+void patch6_2(uint8_t* match) {
+  MSHookFunction((void *)findS(match), (void *)hook_ix_sysCheck_integrity, (void **)&orig_ix_sysCheck_integrity);
+  debugMsg(@"[ABASM] finded6_2 %p", match-_dyld_get_image_vmaddr_slide(0));
 }
 void patch6_3(uint8_t* match) {
-  if(0)MSHookFunction((void *)findS(match), (void *)hook_ix_sysCheck_integrity, (void **)&orig_ix_sysCheck_integrity);
-}
-void patch6_5(uint8_t* match) {
-  // debugMsg(@"[ABPattern sharedInstance] finded5 %p", match-_dyld_get_image_vmaddr_slide(0));
-  if(0)patchCode(findS(match), RET, sizeof(RET));
+  patchCode(findS(match), RET, sizeof(RET));
+  debugMsg(@"[ABASM] finded6_3 %p", match-_dyld_get_image_vmaddr_slide(0));
 }
 
 void remove6() {
@@ -518,49 +519,39 @@ void remove6() {
     0xFFFFFFFF
   };
 
+  const uint64_t ix_sysCheckStart_target3[] = {
+    0x910C394A, // add x10, x10
+    0xA93903A8, // stp x8, x0, [x29, var_70]
+    0xF81883AA, // stur x10, [x29, var_78]
+    0x35050E49 // cbnz w9, loc_1009e4994
+  };
+
+  const uint64_t ix_sysCheckStart_mask3[] = {
+    0xFFFFFFFF,
+    0xFFFFFFFF,
+    0xFFFFFFFF,
+    0xFFFFFFFF
+  };
+
   findSegment2(ix_sysCheckStart_target2, ix_sysCheckStart_mask2, sizeof(ix_sysCheckStart_target2)/sizeof(uint64_t), &patch6);
   findSegment2(ix_sysCheckStart_target2_2, ix_sysCheckStart_mask2, sizeof(ix_sysCheckStart_target2)/sizeof(uint64_t), &patch6);
+  findSegment2(ix_sysCheckStart_target3, ix_sysCheckStart_mask3, sizeof(ix_sysCheckStart_target3)/sizeof(uint64_t), &patch6);
 
-
-  const uint64_t ix_sysCheck_integrity_target[] = {
-    0x90000000, // ADRP
-    0x90000000, // ADD
-    0x88DFFC08,
-    0x350050C8
+  const uint8_t ix_sysCheckIntegrity[] = {
+    0x4A, 0xB1, 0x33, 0x91, // add x10, x10, #0xcec
+    0xA0, 0x07, 0x39, 0xA9, // stp x0, x1, [x29, var_70]
+    0xAA, 0x23, 0x38, 0xA9, // stp x10, x8, [x29, var_80]
+    0x49, 0xF5, 0x01, 0x35 // cbnz w9, loc_100c1e428
   };
+  findSegment(ix_sysCheckIntegrity, sizeof(ix_sysCheckIntegrity), &patch6_2);
 
-  const uint64_t ix_sysCheck_integrity_target2[] = {
-    0x90000000, // ADRP
-    0x90000000, // ADD
-    0x8808FCDF,
-    0x35C85000
+  const uint8_t ix_sysCheckInit[] = {
+    0x8C, 0x09, 0x14, 0x91, // add x12, x12, #0x502
+    0xAA, 0x23, 0x39, 0xA9, // stp x10, x8, [x29, var_70]
+    0xAC, 0x2F, 0x38, 0xA9, // stp x12, x11, [x29, var_80]
+    0x69, 0x6B, 0x00, 0x35 // cbnz w9, loc_10099a7d8
   };
-
-  const uint64_t ix_sysCheck_integrity_mask[] = {
-    0x9F000000,
-    0x90000000,
-    0xFFFFFFFF,
-    0xFFFFFFFF
-  };
-
-  findSegment2(ix_sysCheck_integrity_target, ix_sysCheck_integrity_mask, sizeof(ix_sysCheck_integrity_target)/sizeof(uint64_t), &patch6_3);
-  findSegment2(ix_sysCheck_integrity_target2, ix_sysCheck_integrity_mask, sizeof(ix_sysCheck_integrity_target2)/sizeof(uint64_t), &patch6_3);
-
-  const uint64_t ix_sysCheck_crash_target[] = {
-    0x90000000, // ADRP
-    0x90000000, // ADD
-    0x88DFFD08,
-    0x35005068
-  };
-
-  const uint64_t ix_sysCheck_crash_mask[] = {
-    0x9F000000,
-    0x90000000,
-    0xFFFFFFFF,
-    0xFFFFFFFF
-  };
-
-  findSegment2(ix_sysCheck_crash_target, ix_sysCheck_crash_mask, sizeof(ix_sysCheck_crash_target)/sizeof(uint64_t), &patch6_5);
+  findSegment(ix_sysCheckInit, sizeof(ix_sysCheckInit), &patch6_3);
 }
 // AirArmor
 void patch7(uint8_t* match) {
