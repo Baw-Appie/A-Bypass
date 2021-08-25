@@ -416,6 +416,8 @@ struct ix_verify_info {
 
 int (*orig_ix_sysCheckStart)(struct ix_detected_pattern **p_info);
 int hook_ix_sysCheckStart(struct ix_detected_pattern **p_info) {
+  // orig_ix_sysCheckStart(p_info);
+  // HBLogError(@"[ABZZ] %s", (*p_info)->resultCode);
   struct ix_detected_pattern *patternInfo = (struct ix_detected_pattern*)malloc(sizeof(struct ix_detected_pattern));
   strcpy(patternInfo->resultCode, "0000");
   strcpy(patternInfo->object, "SYSTEM_OK");
