@@ -1098,7 +1098,7 @@ int stat(const char *path, struct stat *result);
 }
 %hookf(int, posix_spawnp, pid_t *pid, const char *pathname, const posix_spawn_file_actions_t *file_actions, const posix_spawnattr_t *attrp, char *const argv[], char *const envp[]) {
   if(pathname) {
-    NSString *path = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:pathname length:strlen(pathname)];
+    NSString *path = @(pathname);
     if(![[ABPattern sharedInstance] u:path i:20010]) return ENOENT;
   }
   return %orig;
@@ -1145,8 +1145,8 @@ int stat(const char *path, struct stat *result);
   NSString *oldname_ns = nil;
   NSString *newname_ns = nil;
   if(oldname && newname) {
-    oldname_ns = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:oldname length:strlen(oldname)];
-    newname_ns = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:newname length:strlen(newname)];
+    oldname_ns = @(oldname);
+    newname_ns = @(newname);
     if([oldname_ns hasPrefix:@"/tmp"] || [newname_ns hasPrefix:@"/tmp"]) {
       errno = ENOENT;
       return -1;
@@ -1175,7 +1175,7 @@ int stat(const char *path, struct stat *result);
   if(ret == 0) {
     char path[PATH_MAX];
     if(fcntl(fd, F_GETPATH, path) != -1) {
-      NSString *pathname = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:path length:strlen(path)];
+      NSString *pathname = @(path);
       if(![[ABPattern sharedInstance] u:pathname i:20011]) {
         errno = ENOENT;
         return -1;
@@ -1196,7 +1196,7 @@ int stat(const char *path, struct stat *result);
 %hookf(int, statfs, const char *path, struct statfs *buf) {
   int ret = %orig;
   if(ret == 0) {
-    NSString *pathname = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:path length:strlen(path)];
+    NSString *pathname = @(path);
     // 원래 check였는데 왜 그거 썼는지 모르겠음..
     if(![[ABPattern sharedInstance] u:pathname i:20012]) {
       errno = ENOENT;
@@ -1230,7 +1230,7 @@ int stat(const char *path, struct stat *result);
 }
 %hookf(int, chdir, const char *pathname) {
   if(pathname) {
-    NSString *path = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:pathname length:strlen(pathname)];
+    NSString *path = @(pathname);
     if(![[ABPattern sharedInstance] u:path i:20013]) {
       errno = ENOENT;
       return -1;
@@ -1241,7 +1241,7 @@ int stat(const char *path, struct stat *result);
 %hookf(int, fchdir, int fd) {
   char dirfdpath[PATH_MAX];
   if(fcntl(fd, F_GETPATH, dirfdpath) != -1) {
-    NSString *path = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:dirfdpath length:strlen(dirfdpath)];
+    NSString *path = @(dirfdpath);
     if(![[ABPattern sharedInstance] u:path i:20014]) {
       errno = ENOENT;
       return -1;
@@ -1260,7 +1260,7 @@ int stat(const char *path, struct stat *result);
 
 %hookf(int, rmdir, const char *pathname) {
   if(pathname) {
-    NSString *path = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:pathname length:strlen(pathname)];
+    NSString *path = @(pathname);
     if(![[ABPattern sharedInstance] u:path i:20015]) {
       errno = ENOENT;
       return -1;
@@ -1270,7 +1270,7 @@ int stat(const char *path, struct stat *result);
 }
 %hookf(int, fstatat, int dirfd, const char *pathname, struct stat *buf, int flags) {
   if(pathname) {
-    NSString *path = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:pathname length:strlen(pathname)];
+    NSString *path = @(pathname);
     if(![[ABPattern sharedInstance] u:path i:20016]) {
       errno = ENOENT;
       return -1;
@@ -1282,7 +1282,7 @@ int stat(const char *path, struct stat *result);
 
 %hookf(FILE *, freopen, const char *pathname, const char *mode, FILE *stream) {
     if(pathname) {
-        NSString *path = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:pathname length:strlen(pathname)];
+        NSString *path = @(pathname);
         if(![[ABPattern sharedInstance] u:path i:20018]) {
             fclose(stream);
             errno = ENOENT;
@@ -1294,7 +1294,7 @@ int stat(const char *path, struct stat *result);
 }
 %hookf(int, remove, const char *filename) {
     if(filename) {
-        NSString *path = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:filename length:strlen(filename)];
+        NSString *path = @(filename);
 
         if(![[ABPattern sharedInstance] u:path i:20021]) {
             errno = ENOENT;
@@ -1306,14 +1306,14 @@ int stat(const char *path, struct stat *result);
 }
 %hookf(int, unlinkat, int dirfd, const char *pathname, int flags) {
     if(pathname) {
-        NSString *path = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:pathname length:strlen(pathname)];
+        NSString *path = @(pathname);
 
         if(![path isAbsolutePath]) {
             // Get path of dirfd.
             char dirfdpath[PATH_MAX];
         
             if(fcntl(dirfd, F_GETPATH, dirfdpath) != -1) {
-                NSString *dirfd_path = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:dirfdpath length:strlen(dirfdpath)];
+                NSString *dirfd_path = @(dirfdpath);
                 path = [dirfd_path stringByAppendingPathComponent:path];
             }
         }
@@ -1328,14 +1328,14 @@ int stat(const char *path, struct stat *result);
 }
 %hookf(int, faccessat, int dirfd, const char *pathname, int mode, int flags) {
     if(pathname) {
-        NSString *path = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:pathname length:strlen(pathname)];
+        NSString *path = @(pathname);
 
         if(![path isAbsolutePath]) {
             // Get path of dirfd.
             char dirfdpath[PATH_MAX];
         
             if(fcntl(dirfd, F_GETPATH, dirfdpath) != -1) {
-                NSString *dirfd_path = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:dirfdpath length:strlen(dirfdpath)];
+                NSString *dirfd_path = @(dirfdpath);
                 path = [dirfd_path stringByAppendingPathComponent:path];
             }
         }
@@ -1350,7 +1350,7 @@ int stat(const char *path, struct stat *result);
 }
 %hookf(int, chroot, const char *dirname) {
     if(dirname) {
-        NSString *path = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:dirname length:strlen(dirname)];
+        NSString *path = @(dirname);
 
         if(![[ABPattern sharedInstance] u:path i:20024]) {
             errno = ENOENT;
@@ -1407,7 +1407,7 @@ int stat(const char *path, struct stat *result);
 
 %hookf(int, posix_spawn, pid_t *pid, const char *pathname, const posix_spawn_file_actions_t *file_actions, const posix_spawnattr_t *attrp, char *const argv[], char *const envp[]) {
   if(pathname) {
-    NSString *path = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:pathname length:strlen(pathname)];
+    NSString *path = @(pathname);
     if(![[ABPattern sharedInstance] u:path i:20026]) return ENOENT;
   }
   return %orig;
@@ -1554,7 +1554,7 @@ static int (*orig_open)(const char *path, int oflag, ...);
 static int hook_open(const char *path, int oflag, ...) {
   int result = 0;
   if(path) {
-    NSString *pathname = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:path length:strlen(path)];
+    NSString *pathname = @(path);
     if(![[ABPattern sharedInstance] u:pathname i:20017]) {
       errno = ((oflag & O_CREAT) == O_CREAT) ? EACCES : ENOENT;
       return -1;
@@ -1608,7 +1608,7 @@ static DIR *(*orig_opendir)(const char *filename);
 static DIR *hook_opendir(const char *filename) {
   // HBLogError(@"ABPattern opendir detected.");
   if(filename) {
-    NSString *path = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:filename length:strlen(filename)];
+    NSString *path = @(filename);
     if(![[ABPattern sharedInstance] u:path i:20025]) {
       errno = ENOENT;
       return NULL;
