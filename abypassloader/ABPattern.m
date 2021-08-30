@@ -187,6 +187,7 @@
       [name containsString:@"cephei"] ||
       [name containsString:@"libmryipc"] ||
       [name containsString:@"libactivator"] ||
+      [name containsString:@"blackjack"] ||
       [name containsString:@"alderis"]) {
     return true;
   } else return false;
