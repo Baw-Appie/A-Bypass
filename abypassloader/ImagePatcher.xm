@@ -319,6 +319,7 @@ void remove1() {
   };
 
   findSegment2(target, mask, sizeof(target)/sizeof(uint64_t), &patch1);
+  debugMsg(@"[ABASM] S: r1");
 }
 // LxShields
 void patch2(uint8_t* match) {

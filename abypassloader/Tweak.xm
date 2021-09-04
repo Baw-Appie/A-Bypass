@@ -1547,6 +1547,10 @@ typedef int8 BYTE;
   return ret;
   // return KERN_FAILURE;
 }
+// %hookf(int, exit, int status) {
+//   HBLogError(@"[ABExit] %d %@", status, [NSThread callStackSymbols]);
+//   return 1;
+// }
 %end
 
 
@@ -1820,6 +1824,8 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
         } else if([version isEqualToString:@"5.17.0"]) {
           // 5.16.0과 위치 동일
           patchData(0x1000ac894, 0xC0035FD6);
+        } else if([version isEqualToString:@"5.24.1"]) {
+          patchData(0x100ca9fbc, 0xC0035FD6);
         }
 
         // 이건 자동으로 찾아내는 것
