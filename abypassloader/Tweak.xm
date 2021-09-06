@@ -1842,13 +1842,15 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
     [[ABPattern sharedInstance] setup:dic[@"data"]];
     if([ABSI.noHookingPlz containsObject:identifier]) return hideProgress();
 
+    loadingProgress(@"3");
+
     // Sublime Text 등 일부 텍스트 에디터에서만 정상적으로 표시됨.
     // 절대 전부 똑같은게 아님!
     // 낚이지 말자.
     %init(framework, -SCMHArxan=objc_getClass(" "), -SpaceClass=objc_getClass(" "));
     %init(CFunction);
     %init(ObjcMethods);
-    loadingProgress(@"3");
+    loadingProgress(@"4");
 
     float iosVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
     NSString *version = [[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"];
@@ -1888,7 +1890,7 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
     }
     // Fiserv
     hookSymbol1WithPrivateImage("$s12FICoreModule19AppdomeEventManagerC24checkNotJailBrokenDeviceSbyFZ", "FICoreModule");
-    loadingProgress(@"4");
+    loadingProgress(@"5");
 
     if(![ABSI.ABASMBlackList containsObject:identifier] && ![ABSI.hookSVC80 containsObject:identifier]) {
       removeSYS_open();
@@ -1896,7 +1898,7 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
       removeSYS_access2();
       removeSYS_symlink();
     }
-    loadingProgress(@"5");
+    loadingProgress(@"6");
 
     if(objc_getClass("BinaryChecker") || objc_getClass("mVaccine")) %init(BinaryChecker);
     if([identifier isEqualToString:@"com.kakaogames.gdtskr"] || [identifier isEqualToString:@"com.hyundaicapital.myAccount"] || [identifier isEqualToString:@"com.payprotocolwallet.kr"] || [identifier isEqualToString:@"com.sktelecom.tauth"]) remove2();
@@ -1907,7 +1909,7 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
     if(objc_getClass("iXManager")) remove6();
     if(objc_getClass("SDFXIOSHelper")) remove7();
 
-    loadingProgress(@"6");
+    loadingProgress(@"7");
 
     if(!(iosVersion > 14 && !isLibHooker && !isSubstitute)) MSHookFunction((void *)open, (void *)hook_open, (void **)&orig_open);
     else abreset((struct rebinding[1]){{"open", (void *)hook_open, (void **)&orig_open}}, 1);
@@ -1915,7 +1917,7 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
     abreset((struct rebinding[1]){{"opendir", (void *)hook_opendir, (void **)&orig_opendir}}, 1);
     MSHookFunction((void *)dlsym(RTLD_DEFAULT, "strstr"), (void *)my_strstr, (void **)&orig_strstr);
     if(0)MSHookFunction((void *)dlsym(RTLD_DEFAULT, "syscall"), (void *)hooked_syscall, (void **)&orig_syscall);
-    loadingProgress(@"7");
+    loadingProgress(@"8");
 
     if(!objc_getClass("Eversafe")) {
       if((isLibHooker && iosVersion < 14) || [ABSI.enforceDYLD containsObject:identifier]) {
@@ -1926,8 +1928,6 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
       }
   		// _dyld_register_func_for_add_image(&image_added);
     }
-
-    loadingProgress(@"8");
 
     loadingProgress(@"9");
   } else {
