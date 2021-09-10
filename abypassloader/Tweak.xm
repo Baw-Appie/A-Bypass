@@ -1271,6 +1271,12 @@ int stat(const char *path, struct stat *result);
 %hookf(int, fstatat, int dirfd, const char *pathname, struct stat *buf, int flags) {
   if(pathname) {
     NSString *path = @(pathname);
+        
+    char dirfdpath[PATH_MAX];
+    if(fcntl(dirfd, F_GETPATH, dirfdpath) != -1) {
+        path = [@(dirfdpath) stringByAppendingPathComponent:path];
+    }
+
     if(![[ABPattern sharedInstance] u:path i:20016]) {
       errno = ENOENT;
       return -1;
