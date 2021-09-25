@@ -31,6 +31,7 @@
 #define debugMsg(...)
 #endif
 
+bool patchData(uintptr_t offset, unsigned int data);
 
 uint8_t RET[] = {
   0xC0, 0x03, 0x5F, 0xD6  //RET
@@ -550,14 +551,14 @@ void remove6() {
   };
 
   const uint64_t ix_sysCheckStart_target3[] = {
-    0x910C394A, // add x10, x10
+    // 0x910C394A, // add x10, x10
     0xA93903A8, // stp x8, x0, [x29, var_70]
     0xF81883AA, // stur x10, [x29, var_78]
     0x35050E49 // cbnz w9, loc_1009e4994
   };
 
   const uint64_t ix_sysCheckStart_mask3[] = {
-    0xFFFFFFFF,
+    // 0xFFFFFFFF,
     0xFFFFFFFF,
     0xFFFFFFFF,
     0xFFFFFFFF
@@ -582,6 +583,24 @@ void remove6() {
     0x69, 0x6B, 0x00, 0x35 // cbnz w9, loc_10099a7d8
   };
   findSegment(ix_sysCheckInit, sizeof(ix_sysCheckInit), &patch6_3);
+
+  // 마이 케이티(6.4.2): -[MyKtIntroViewController checkRoutine]
+  const uint64_t ix_sysCheckInit_Target_2[] = {
+    0x88DFFD09, // LDAR
+    0x90000000, // ADRP 
+    0x90000000, // ADD
+    0xA93923AA, // STP
+    0x35013269 // CNBZ
+  };
+
+  const uint64_t ix_sysCheckInit_Mask_2[] = {
+    0xFFFFFFFF,
+    0x9F000000,
+    0x90000000,
+    0xFFFFFFFF,
+    0xFFFFFFFF
+  };
+  findSegment2(ix_sysCheckInit_Target_2, ix_sysCheckInit_Mask_2, sizeof(ix_sysCheckInit_Target_2)/sizeof(uint64_t), &patch6_3);
 }
 // AirArmor
 void patch7(uint8_t* match) {

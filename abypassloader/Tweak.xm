@@ -1792,8 +1792,6 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
       @"com.KoreaExpressSmt",
       @"com.samsungpop.ios.masset",
       @"com.hyundaicard.mpointmall",
-      // @"kr.co.show.cs.full"
-
       @"de.comdirect.phototan",
     ];
 
