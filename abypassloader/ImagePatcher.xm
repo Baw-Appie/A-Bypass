@@ -31,6 +31,23 @@
 #define debugMsg(...)
 #endif
 
+
+uint8_t RET[] = {
+  0xC0, 0x03, 0x5F, 0xD6  //RET
+};
+uint8_t RET0[] = {
+  0x00, 0x00, 0x80, 0xD2, //MOV X0, #0
+  0xC0, 0x03, 0x5F, 0xD6  //RET
+};
+uint8_t RET1[] = {
+  0x20, 0x00, 0x80, 0xD2, //MOV X0, #1
+  0xC0, 0x03, 0x5F, 0xD6  //RET
+};
+
+
+
+
+
 void findSegmentByImageNum(const uint8_t *target, const uint32_t target_len, void (*callback)(uint8_t *), int image_num) {
   const struct mach_header_64 *header = (const struct mach_header_64*) _dyld_get_image_header(image_num);
   const struct section_64 *executable_section = getsectbynamefromheader_64(header, "__TEXT", "__text");
@@ -188,7 +205,18 @@ bool patchCode(void *target, const void *data, size_t size) {
 
 
 
+void patchSVC70(uint8_t* match) {
+  patchCode(findSA(match), RET0, sizeof(RET0));
+  debugMsg(@"[ABASM] A-Bypass found the malware and removed it. (SVC70: %p)", match);
+}
 
+void removeSVC70() {
+  const uint8_t target[] = {
+    0x01, 0x10, 0x00, 0xD4, // SVC  0x80
+  };
+  debugMsg(@"[ABASM] Starting malware detection. (SVC70)");
+  findSegment(target, sizeof(target), &patchSVC70);
+}
 
 
 void patchSYS_access(uint8_t* match) {
@@ -282,17 +310,6 @@ void removeSYS_symlink() {
 
 
 
-uint8_t RET[] = {
-  0xC0, 0x03, 0x5F, 0xD6  //RET
-};
-uint8_t RET0[] = {
-  0x00, 0x00, 0x80, 0xD2, //MOV X0, #0
-  0xC0, 0x03, 0x5F, 0xD6  //RET
-};
-uint8_t RET1[] = {
-  0x20, 0x00, 0x80, 0xD2, //MOV X0, #1
-  0xC0, 0x03, 0x5F, 0xD6  //RET
-};
 
 
 // iXGuard
@@ -357,6 +374,16 @@ void remove2() {
     0x22, 0x03, 0x02, 0x2A, 
   };
   findSegment(target3, sizeof(target3), &patch2_1);
+
+  // Paycoin: -[Global checkLxShield:] (1.1.19)
+  // 미래에셋PAY (0.2021.11)
+  const uint8_t target4[] = {
+    0xF8, 0x03, 0x40, 0xB9,
+    0xF8, 0x0B, 0x00, 0xB9,
+    0xF8, 0x0B, 0x40, 0xB9,
+    0x1F, 0x03, 0x0A, 0x6B, 
+  };
+  findSegment(target4, sizeof(target4), &patch2_1);
 }
 // AppSolid Legacy
 void patch3(uint8_t* match) {
