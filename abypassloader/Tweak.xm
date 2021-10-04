@@ -581,22 +581,22 @@ int isSafePTR(int64_t ptr) {
   arg2(true);
 }
 %end
-%hook MasController
--(bool)checkJailbreak {
-  return false;
-}
--(void)coreMAS {
+// %hook MasController
+// -(bool)checkJailbreak {
+//   return false;
+// }
+// -(void)coreMAS {
 
-}
-%end
-%hook _y_q_l_h_s_i
--(id)_f_g_1_h_d_i {
-  return (id)CFSTR("AMMPASS");
-}
--(void *)_i_g_l_h_d_a {
-  return @"성공";
-}
-%end
+// }
+// %end
+// %hook _y_q_l_h_s_i
+// -(id)_f_g_1_h_d_i {
+//   return (id)CFSTR("AMMPASS");
+// }
+// -(void *)_i_g_l_h_d_a {
+//   return @"성공";
+// }
+// %end
 
 @interface StockNewsdmManager
 +(char *)defRandomString;
