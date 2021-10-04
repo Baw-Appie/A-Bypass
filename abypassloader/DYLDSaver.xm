@@ -16,12 +16,14 @@
 uint32_t dyldCount = 0;
 char **dyldNames = 0;
 struct mach_header **dyldHeaders = 0;
+intptr_t *dyldSlides = 0;
 void syncDyldArray() {
 	uint32_t count = _dyld_image_count();
 	uint32_t counter = 0;
 	//NSLog(@"[FlyJB] There are %u images", count);
 	dyldNames = (char **) calloc(count, sizeof(char **));
 	dyldHeaders = (struct mach_header **) calloc(count, sizeof(struct mach_header **));
+	dyldSlides = (intptr_t *) calloc(count, sizeof(intptr_t *));
 	for (int i = 0; i < count; i++) {
 		const char *charName = _dyld_get_image_name(i);
 		if (!charName) {
@@ -40,6 +42,7 @@ void syncDyldArray() {
 		uint32_t idx = counter++;
 		dyldNames[idx] = strdup(charName);
 		dyldHeaders[idx] = (struct mach_header *) _dyld_get_image_header(i);
+		dyldSlides[idx] = _dyld_get_image_vmaddr_slide(i);
 	}
 	dyldCount = counter;
 }
@@ -53,6 +56,9 @@ void syncDyldArray() {
 }
 %hookf(struct mach_header *, _dyld_get_image_header, uint32_t image_index) {
 	return dyldHeaders[image_index];
+}
+%hookf(intptr_t, _dyld_get_image_vmaddr_slide, uint32_t image_index) {
+	return dyldSlides[image_index];
 }
 %end
 
