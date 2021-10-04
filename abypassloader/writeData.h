@@ -143,7 +143,7 @@ unsigned long get_vm_slide_by_name(NSString *imageName) {
     return _dyld_get_image_vmaddr_slide(imageIndex);
 }
 
-unsigned long calcAddress(uintptr_t offset, NSString *imageName) {
+int getImageIndex(NSString *imageName) {
     int imageIndex = -1;
     uint32_t count = _dyld_image_count();
     for(uint32_t i = 0; i < count; i++) {
@@ -155,7 +155,11 @@ unsigned long calcAddress(uintptr_t offset, NSString *imageName) {
         }
     }
     if(imageIndex == -1) @throw NSInternalInconsistencyException;
-    return _dyld_get_image_vmaddr_slide(imageIndex) + offset;
+    return imageIndex;
+}
+
+unsigned long calcAddress(uintptr_t offset, NSString *imageName) {
+    return _dyld_get_image_vmaddr_slide(getImageIndex(imageName)) + offset;
 }
 
 bool patchDataToImage(uintptr_t offset, unsigned int data, NSString *imageName) {

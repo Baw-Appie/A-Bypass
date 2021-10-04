@@ -31,6 +31,7 @@
 #define debugMsg(...)
 #endif
 
+int getImageIndex(NSString *imageName);
 bool patchData(uintptr_t offset, unsigned int data);
 
 uint8_t RET[] = {
@@ -308,6 +309,16 @@ void removeSYS_symlink() {
 
 
 
+void patchCrazyRET(uint8_t* match) {
+  patchCode(findS(match), RET0, sizeof(RET0));
+}
+
+void removeCrazyRET(NSString *imageName) {
+  const uint8_t target[] = {
+    0xC0, 0x03, 0x5F, 0xD6 // RET
+  };
+  findSegmentByImageNum(target, sizeof(target), &patchSYS_symlink, getImageIndex(imageName));
+}
 
 
 
@@ -692,7 +703,7 @@ BOOL enableSysctlHook = false;
 void hookingSVC80Handler(RegisterContext *reg_ctx, const HookEntryInfo *info) {
     int num_syscall = (int)(uint64_t)(reg_ctx->general.regs.x16);
     char *arg1 = (char *)reg_ctx->general.regs.x0;
-    debugMsg(@"[ABZZ] System PRECALL %d %p", num_syscall, info->target_address);
+    debugMsg(@"[ABZZ] System PRECALL %d %p %p", num_syscall, info->target_address, (uint8_t *)_dyld_get_image_vmaddr_slide(0));
     
     if(num_syscall == SYS_symlink) {
       char *arg2 = (char *)reg_ctx->general.regs.x1;
