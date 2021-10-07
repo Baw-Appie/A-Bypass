@@ -164,6 +164,7 @@ void findSegment2ForDyldImage(const uint64_t *target, const uint64_t *mask, cons
         if (index == target_len) {
             index = 0;
             callback((uint8_t *)(current - target_len));
+            // debugMsg(@"[ABASM] findSegment2 is worked! %s", _dyld_get_image_name(image_num));
         }
         start_address+=0x4;
     }

@@ -1832,6 +1832,10 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
           patchData(0x1000ac894, 0xC0035FD6);
         } else if([version isEqualToString:@"5.24.1"]) {
           patchData(0x100ca9fbc, 0xC0035FD6);
+        } else if([version isEqualToString:@"5.30.0"]) {
+          patchData(0x1004f64dc, 0xC0035FD6);
+          patchData(0x100e4ec94, 0xC0035FD6);
+          patchData(0x1012175f4, 0xC0035FD6);
         }
 
         // 이건 자동으로 찾아내는 것
