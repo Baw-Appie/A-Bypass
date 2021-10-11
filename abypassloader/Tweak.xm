@@ -1878,16 +1878,16 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
       }
       return hideProgress();
     }
-    if([identifier isEqualToString:@"com.unveilapp.unveil"]) {
-      if([version isEqualToString:@"1.0.0"]) {
-        // System volume is not signed
-        patchData(0x1001147f0, 0x200080D2);
-        patchData(0x1001147f4, 0xC0035FD6);
-        // Sandbox allows access to /Library
-        patchData(0x10011e4c0, 0x000080D2);
-        patchData(0x10011e4c4, 0xC0035FD6);
-      }
-    }
+    // if([identifier isEqualToString:@"com.unveilapp.unveil"]) {
+    //   if([version isEqualToString:@"1.0.0"]) {
+    //     // System volume is not signed
+    //     patchData(0x1001147f0, 0x200080D2);
+    //     patchData(0x1001147f4, 0xC0035FD6);
+    //     // Sandbox allows access to /Library
+    //     patchData(0x10011e4c0, 0x000080D2);
+    //     patchData(0x10011e4c4, 0xC0035FD6);
+    //   }
+    // }
 
     if([identifier isEqualToString:@"com.tmoney.tmpay"]) {
       hookSymbol0("__ZN9cbpp_core13SecurityCheck14detect_rootingEv");
