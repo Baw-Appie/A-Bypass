@@ -166,6 +166,7 @@
 }
 -(BOOL)ozd:(NSString *)name {
   if ([name containsString:@"substrate"] ||
+      [name containsString:@"abdyld"] ||
       [name containsString:@"bawappie"] ||
       [name containsString:@"substitute"] ||
       [name containsString:@"substitrate"] ||

@@ -71,14 +71,16 @@ int isSafePTR(int64_t ptr) {
 }
 
 %group framework
-// %hook CTCarrier
-// -(NSString *)mobileNetworkCode {
-//   return @"08";
-// }
-// -(NSString *)mobileCountryCode {
-//   return @"450";
-// }
-// %end
+%hook CTCarrier
+-(NSString *)mobileNetworkCode {
+  if([identifier isEqualToString:@"com.kt.ktauth"]) return @"08";
+  else return %orig;
+}
+-(NSString *)mobileCountryCode {
+  if([identifier isEqualToString:@"com.kt.ktauth"]) return @"450";
+  else return %orig;
+}
+%end
 
 // TODO: 이거 없이 패치하기. 
 %hook Liapp
@@ -614,13 +616,13 @@ int isSafePTR(int64_t ptr) {
 -(void)didReceiveMemoryWarning;
 -(void)viewDidUnload2;
 @end
-%hook UpdateMIssuesManager
--(unsigned int)viewDidUnload:(struct mach_header *)arg2 Loader2:(int)arg3 {
-  [self didReceiveMemoryWarning];
-  if(![[NSBundle mainBundle].bundleIdentifier isEqualToString:@"com.vivarepublica.cash"]) %orig;
-  return 0;
-}
-%end
+// %hook UpdateMIssuesManager
+// -(unsigned int)viewDidUnload:(struct mach_header *)arg2 Loader2:(int)arg3 {
+//   [self didReceiveMemoryWarning];
+//   if(![[NSBundle mainBundle].bundleIdentifier isEqualToString:@"com.vivarepublica.cash"]) %orig;
+//   return 0;
+// }
+// %end
 
 
 %hook _TtC10gsthefresh5Utils
@@ -728,6 +730,7 @@ int isSafePTR(int64_t ptr) {
   return %orig;
 }
 - (BOOL)isReadableFileAtPath:(NSString *)path {
+  if([path isEqualToString:@"/usr/lib/"]) return false;
   if(![[ABPattern sharedInstance] u:path i:11007]) return false;
   return %orig;
 }
@@ -1635,6 +1638,7 @@ static char* my_strstr(char* str1, const char* str2) {
   // if(orig_strstr(str1, str2) != nil) HBLogError(@"ABPatternstrstr %s %s %s", orig_strstr(str1, str2), str1, str2);
   // if([@(str1) containsString:@"substitute"]) return NULL;
   if([@(str2) containsString:@"ubstrate"]) return NULL;
+  // if([@(str2) containsString:@"bstitute"]) return NULL;
   return orig_strstr(str1, str2);
 }
 
@@ -1806,8 +1810,19 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
     ABSI.enforceDYLD = @[
       @"com.kismobile.pay",
       @"co.kr.acuonsavingsbank.acuonsb",
-      @"com.sbi.saidabank"
+      @"com.sbi.saidabank",
+      @"com.Kiwoom.HeroSMobile"
     ];
+
+    // dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    //     center = [MRYIPCCenter centerNamed:@"com.rpgfarm.a-bypass"];
+    //     [center callExternalVoidMethod:@selector(handleShowNotification:) withArguments:@{
+    //       @"title" : @"A-Bypass Warning",
+    //       @"message" : [NSString stringWithFormat:@"%s", [objc_getClass("StockNewsdmManager") ?: objc_getClass("StartElementCompil") defRandomString]],
+    //       @"identifier": @"com.apple.Preferences"
+    //     }];
+    //   }
+    // );
 
     NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.rpgfarm.abypassprefs.plist"];
     if([prefs[@"advanced"][identifier][@"ABASMBlackList"] isEqual:@1]) ABSI.ABASMBlackList = @[identifier];
