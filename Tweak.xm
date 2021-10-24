@@ -29,12 +29,12 @@ NSArray *disableIdentifiers;
 NSArray *subloader;
 float iosVersion;
 
-static void easy_spawn(const char* args[]) {
-    pid_t pid;
-    int status;
-    posix_spawn(&pid, args[0], NULL, NULL, (char* const*)args, NULL);
-    waitpid(pid, &status, WEXITED);
-}
+// static void easy_spawn(const char* args[]) {
+//     pid_t pid;
+//     int status;
+//     posix_spawn(&pid, args[0], NULL, NULL, (char* const*)args, NULL);
+//     waitpid(pid, &status, WEXITED);
+// }
 
 static dispatch_queue_t getBBServerQueue() {
 	static dispatch_queue_t queue;
@@ -244,7 +244,7 @@ extern "C" CFPropertyListRef MGCopyAnswer(CFStringRef property);
     if(plistDict[@"stopABLivePatch"] && ![[NSFileManager defaultManager] fileExistsAtPath:@"/Library/BawAppie/ABypass/ABLicense"]) {
       [center callExternalVoidMethod:@selector(handleShowNotification:) withArguments:@{
         @"title" : @"A-Bypass Live Patch",
-        @"message" : @"A-Bypass Live Patch is not available. Start Live Patch Update..",
+        @"message" : @"A-Bypass Live Patch is not available. Starting Live Patch Update..",
         @"identifier": @"com.apple.Preferences"
       }];
       plistDict[@"stopABLivePatch"] = nil;
@@ -262,13 +262,13 @@ extern "C" CFPropertyListRef MGCopyAnswer(CFStringRef property);
         if([result[@"errno"] isEqual:@1] && [[NSFileManager defaultManager] fileExistsAtPath:@"/Library/BawAppie/ABypass/ABLicense"]) {
           [center callExternalVoidMethod:@selector(handleShowNotification:) withArguments:@{
             @"title" : @"A-Bypass Live Patch",
-            @"message" : [NSString stringWithFormat:@"A network error has occurred. Skipping live patch update... (%@)", result[@"message"]],
+            @"message" : [NSString stringWithFormat:@"ABLoader is unable to update A-Bypass. (A network error has occurred: %@)", result[@"message"]],
             @"identifier": @"com.apple.Preferences"
           }];
         } else {
           [center callExternalVoidMethod:@selector(handleShowNotification:) withArguments:@{
-            @"title" : @"A-Bypass License Manager Error.",
-            @"message" : result[@"message"],
+            @"title" : @"A-Bypass License Manager Error",
+            @"message" : [NSString stringWithFormat:@"ABLoader is unable to update A-Bypass. (A storage error has occurred: %@)", result[@"message"]],
             @"identifier": @"com.apple.Preferences"
           }];
           exit(0);
@@ -279,7 +279,7 @@ extern "C" CFPropertyListRef MGCopyAnswer(CFStringRef property);
       if(![[NSFileManager defaultManager] fileExistsAtPath:@"/Library/BawAppie/ABypass/ABLicense"]) {
         [center callExternalVoidMethod:@selector(handleShowNotification:) withArguments:@{
           @"title" : @"ABLoader Exception",
-          @"message" : @"A-Bypass license cannot be verified or server is offline.",
+          @"message" : @"ABLoader is unable to load A-Bypass. Please report this error to @BawAppie (License is not verified)",
           @"identifier": @"com.apple.Preferences"
         }];
         exit(0);
@@ -291,11 +291,11 @@ extern "C" CFPropertyListRef MGCopyAnswer(CFStringRef property);
     void *loader = dlopen("/Library/BawAppie/ABypass/ABLicense", RTLD_NOW);
 
     if(loader == nil) {
-      easy_spawn((const char *[]){"/usr/bin/cynject", [[NSString stringWithFormat:@"%d", getpid()] UTF8String], "/Library/BawAppie/ABypass/ABLicense", NULL});
+      // easy_spawn((const char *[]){"/usr/bin/cynject", [[NSString stringWithFormat:@"%d", getpid()] UTF8String], "/Library/BawAppie/ABypass/ABLicense", NULL});
       [[NSString stringWithFormat:@"ABLOADER EXCEPTION\n\n%s", dlerror()] writeToFile:[NSString stringWithFormat:@"%@/Documents/ABLoaderError.log", NSHomeDirectory()] atomically:true encoding:NSUTF8StringEncoding error:nil];
       [center callExternalVoidMethod:@selector(handleShowNotification:) withArguments:@{
         @"title" : @"ABLoader Exception",
-        @"message" : @"ABLoader is unable to load A-Bypass, retrying using cynject. Please report this error to @BawAppie",
+        @"message" : @"ABLoader is unable to load A-Bypass. Please report this error to @BawAppie (A-Bypass injection failed)",
         @"identifier": @"com.apple.Preferences"
       }];
       exit(0);
