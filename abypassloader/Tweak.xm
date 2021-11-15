@@ -98,7 +98,7 @@ int isSafePTR(int64_t ptr) {
 %end
 %hook UIViewController
 - (void)presentViewController:(UIViewController *)viewControllerToPresent animated:(BOOL)flag completion:(void (^)(void))completion {
-  if(!([identifier isEqualToString:@"com.teamblind.blind"] || [identifier isEqualToString:@"finance.chai.app"])) return %orig;
+  if(!([identifier isEqualToString:@"com.teamblind.blind"] || [identifier isEqualToString:@"finance.chai.app"] || [identifier isEqualToString:@"com.sentbe.ionic"])) return %orig;
   if([viewControllerToPresent isKindOfClass:[UIAlertController class]]) {
     if([((UIAlertController *)viewControllerToPresent).title isEqualToString:@"LIAPP"]) {
       self.view.window.hidden = true; 
