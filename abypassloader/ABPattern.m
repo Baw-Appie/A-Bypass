@@ -184,7 +184,7 @@
       [name containsString:@"libhooker"] ||
       [name containsString:@"snowboard"] ||
       [name containsString:@"libblackjack"] ||
-      [name containsString:@"libobjc-trampolines"] ||
+      // [name containsString:@"libobjc-trampolines"] ||
       [name containsString:@"cephei"] ||
       [name containsString:@"libmryipc"] ||
       [name containsString:@"libactivator"] ||

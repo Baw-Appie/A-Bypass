@@ -1081,7 +1081,7 @@ int stat(const char *path, struct stat *result);
   if(ret && info) {
     NSString *dli_fname = @(info->dli_fname);
     if([dli_fname containsString:@"ABypass"]) {
-      info->dli_fname = "/System/Library/Frameworks/UIKit.framework/UIKit";
+      info->dli_fname = "/usr/lib/system/libsystem_kernel.dylib";
     }
     if([dli_fname containsString:@"substitute"] ||
       [dli_fname containsString:@"substrate"] ||
@@ -1168,6 +1168,9 @@ int stat(const char *path, struct stat *result);
       struct kinfo_proc *p = ((struct kinfo_proc *) oldp);
       if((p->kp_proc.p_flag & P_TRACED) == P_TRACED) {
         p->kp_proc.p_flag &= ~P_TRACED;
+      }
+      if((p->kp_proc.p_flag & P_SELECT) == P_SELECT) {
+        p->kp_proc.p_flag &= ~P_SELECT;
       }
     }
   }
@@ -1586,6 +1589,14 @@ static int hook_open(const char *path, int oflag, ...) {
   return result;
 }
 
+static int (*orig_ptrace)(int request, pid_t pid, caddr_t addr, int data);
+static int my_ptrace(int request, pid_t pid, caddr_t addr, int data){
+  if(request == 31){
+    return 0;
+  }
+  return orig_ptrace(request, pid, addr, data);
+}
+
 int (*orig_syscall)(int number, ...);
 int hooked_syscall(int number, ...) {
   HBLogError(@"ABPatternsyscall %d", number);
@@ -1687,6 +1698,14 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
   center = [MRYIPCCenter centerNamed:@"com.rpgfarm.a-bypass"];
   // [NSThread sleepForTimeInterval:0.15];
   showProgress();
+
+  if([identifier isEqualToString:@"com.percent.royaldice"]) {
+    // 최종 정상 작동 버전: 6.2.0
+
+    // 마지막 분석 결과 기록:
+    // 알 수 없는 긴 함수를 통하여 디버깅을 감지하고 있음.
+    // ObjC 메소드 인젝트 관련 조사 필요
+  }
 
   NSFileManager *manager = [NSFileManager defaultManager];
   if(![manager fileExistsAtPath:@"/Library/MobileSubstrate/DynamicLibraries/!ABypass2.dylib"]) {
@@ -1797,6 +1816,7 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
       @"com.samsungpop.ios.masset",
       @"com.hyundaicard.mpointmall",
       @"de.comdirect.phototan",
+      @"com.kt.ios.goodpay"
     ];
 
     ABSI.noHookingPlz = @[
@@ -1941,6 +1961,7 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
     // Fishhook 다 개소리.. 작동 안함!
     abreset((struct rebinding[1]){{"opendir", (void *)hook_opendir, (void **)&orig_opendir}}, 1);
     MSHookFunction((void *)dlsym(RTLD_DEFAULT, "strstr"), (void *)my_strstr, (void **)&orig_strstr);
+    MSHookFunction((void *)dlsym(RTLD_DEFAULT, "ptrace"),(void*)my_ptrace,(void**)&orig_ptrace);
     if(0)MSHookFunction((void *)dlsym(RTLD_DEFAULT, "syscall"), (void *)hooked_syscall, (void **)&orig_syscall);
     loadingProgress(@"8");
 

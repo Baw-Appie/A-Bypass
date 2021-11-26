@@ -726,13 +726,11 @@ void hookingSVC80Handler(RegisterContext *reg_ctx, const HookEntryInfo *info) {
 
 void hookSVC80Real(uint8_t* match) {
   debugMsg(@"[ABZZ] Hooking %p!", match);
-
-  dobby_enable_near_branch_trampoline();
   DobbyInstrument((void *)(match), (DBICallTy)hookingSVC80Handler);
-  dobby_disable_near_branch_trampoline();
 }
 
 void hookingSVC80() {
+  dobby_enable_near_branch_trampoline();
   const uint8_t target[] = {
     0x01, 0x10, 0x00, 0xD4
   };
