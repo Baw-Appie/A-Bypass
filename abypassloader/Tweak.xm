@@ -1816,7 +1816,8 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
       @"com.samsungpop.ios.masset",
       @"com.hyundaicard.mpointmall",
       @"de.comdirect.phototan",
-      @"com.kt.ios.goodpay"
+      @"com.kt.ios.goodpay",
+      @"com.kt.ktauth"
     ];
 
     ABSI.noHookingPlz = @[
@@ -1951,7 +1952,7 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
       remove3();
       remove4();
     }
-    if(objc_getClass("iXManager")) remove6();
+    if(objc_getClass("iXManager") && ![ABSI.hookSVC80 containsObject:identifier]) remove6();
     if(objc_getClass("SDFXIOSHelper")) remove7();
 
     loadingProgress(@"7");
