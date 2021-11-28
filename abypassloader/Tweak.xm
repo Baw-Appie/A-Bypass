@@ -98,7 +98,7 @@ int isSafePTR(int64_t ptr) {
 %end
 %hook UIViewController
 - (void)presentViewController:(UIViewController *)viewControllerToPresent animated:(BOOL)flag completion:(void (^)(void))completion {
-  if(!([identifier isEqualToString:@"com.teamblind.blind"] || [identifier isEqualToString:@"finance.chai.app"] || [identifier isEqualToString:@"com.sentbe.ionic"])) return %orig;
+  if(!([identifier isEqualToString:@"com.teamblind.blind"] || [identifier isEqualToString:@"finance.chai.app"] || [identifier isEqualToString:@"com.sentbe.ionic"] || [identifier isEqualToString:@"co.whatssub.application"])) return %orig;
   if([viewControllerToPresent isKindOfClass:[UIAlertController class]]) {
     if([((UIAlertController *)viewControllerToPresent).title isEqualToString:@"LIAPP"]) {
       self.view.window.hidden = true; 
@@ -552,6 +552,14 @@ int isSafePTR(int64_t ptr) {
 }
 -(void)get_eFDS_info:(id)arg1 {
 
+}
+%end
+%hook AppDelegate
+-(void)showAlertAndQuit {
+  // HBLogError(@"[ABPattern sharedInstance] oops %p %@", (uint32_t *)_dyld_get_image_vmaddr_slide(0), [NSThread callStackSymbols]);
+}
+-(void)forceExit {
+  // HBLogError(@"[ABPattern sharedInstance] oops2 %p %@", (uint32_t *)_dyld_get_image_vmaddr_slide(0), [NSThread callStackSymbols]);
 }
 %end
 %hook BCAppDelegate
