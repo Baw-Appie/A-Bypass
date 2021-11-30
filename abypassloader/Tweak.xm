@@ -1166,23 +1166,26 @@ int stat(const char *path, struct stat *result);
   return %orig;
 }
 %hookf(int, sysctl, int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp, size_t newlen) {
-  if(namelen == 4 && name[0] == CTL_KERN && name[1] == KERN_PROC && name[2] == KERN_PROC_ALL && name[3] == 0) {
-    *oldlenp = 0;
-    return 0;
-  }
-  int ret = %orig;
-  if(ret == 0 && name[0] == CTL_KERN && name[1] == KERN_PROC && name[2] == KERN_PROC_PID && name[3] == getpid()) {
-    if(oldp) {
+  // if(namelen == 4 && name[0] == CTL_KERN && name[1] == KERN_PROC && name[2] == KERN_PROC_ALL && name[3] == 0) {
+  //   *oldlenp = 0;
+  //   return 0;
+  // }
+  if(oldp) {
+    bool isDebugCheck = (name[0] == CTL_KERN && name[1] == KERN_PROC && name[2] == KERN_PROC_PID && name[3] == getpid());
+    bool isHavePTraced = (((struct kinfo_proc *) oldp)->kp_proc.p_flag & P_TRACED) != 0;
+    int ret = %orig;
+    if(ret == 0 && isDebugCheck && !isHavePTraced) {
       struct kinfo_proc *p = ((struct kinfo_proc *) oldp);
       if((p->kp_proc.p_flag & P_TRACED) == P_TRACED) {
-        p->kp_proc.p_flag &= ~P_TRACED;
+        p->kp_proc.p_flag ^= P_TRACED;
       }
       if((p->kp_proc.p_flag & P_SELECT) == P_SELECT) {
-        p->kp_proc.p_flag &= ~P_SELECT;
+        p->kp_proc.p_flag ^= P_SELECT;
       }
     }
+    return ret;
   }
-  return ret;
+  return %orig;
 }
 %hookf(int, fstatfs, int fd, struct statfs *buf) {
   int ret = %orig;
