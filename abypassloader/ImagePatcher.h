@@ -28,4 +28,5 @@ void _hookSymbol1(void *hook);
 void hookSymbol1WithDLSYMImage(const char *string, const char *image);
 void hookSymbol1WithPrivateImage(const char *string, const char *image);
 void hookingSVC80();
+void hookingSVC80_NC();
 void hookingAccessSVC80();

@@ -737,6 +737,25 @@ void hookingSVC80() {
   findSegmentForDyldImage(target, sizeof(target), &hookSVC80Real);
 }
 
+void hookingSVC80Handler_NC(RegisterContext *reg_ctx, const HookEntryInfo *info) {
+    int num_syscall = (int)(uint64_t)(reg_ctx->general.regs.x16);
+    if(num_syscall == SYS_open || num_syscall == SYS_access || num_syscall == SYS_statfs64 || num_syscall == SYS_statfs || num_syscall == SYS_lstat64 || num_syscall == SYS_stat64 || num_syscall == SYS_rename || num_syscall == SYS_setxattr || num_syscall == SYS_pathconf) {
+      *(unsigned long *)(&reg_ctx->general.regs.x0) = (unsigned long long)"/Protected.By.ABypass";
+    }
+}
+
+void hookSVC80Real_NC(uint8_t* match) {
+  DobbyInstrument((void *)(match), (DBICallTy)hookingSVC80Handler_NC);
+}
+
+void hookingSVC80_NC() {
+  dobby_enable_near_branch_trampoline();
+  const uint8_t target[] = {
+    0x01, 0x10, 0x00, 0xD4
+  };
+  findSegmentForDyldImage(target, sizeof(target), &hookSVC80Real_NC);
+}
+
 void hookingAccessSVC80Handler(RegisterContext *reg_ctx, const HookEntryInfo *info) {
 
   const char* arg1 = (const char*)(uint64_t)(reg_ctx->general.regs.x0);
