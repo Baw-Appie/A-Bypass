@@ -9,6 +9,9 @@ ABypassLoader_FILES = ReverseMessage.m Tweak.xm ABPattern.m DYLDSaver.xm fishhoo
 ABypassLoader_LIBRARIES = mryipc Dobby
 ABypassLoader_CODESIGN_FLAGS=-S./ent.plist
 
+# Remove Symbols
+ABypassLoader_CFLAGS += -fvisibility=hidden
+
 
 #  ----- [ Hikari ] -----
 
@@ -18,7 +21,10 @@ TARGET_CXX = /Library/Developer/Toolchains/Hikari.xctoolchain/usr/bin/clang++
 unexport STRCRY
 # unexport INDIBRAN
 ABypassLoader_CFLAGS += -mllvm -enable-indibran -mllvm -enable-funcwra
-# ABypassLoader_CFLAGS += -mllvm -enable-strcry
+ABypassLoader_CFLAGS += -mllvm -enable-strcry
+ABypassLoader_CFLAGS += -mllvm -bcf_cond_compl -mllvm 10
+ABypassLoader_CFLAGS += -mllvm -bcf_prob -mllvm 100
+ABypassLoader_CFLAGS += -mllvm -bcf_loop -mllvm 10
 
 
 include $(THEOS_MAKE_PATH)/tweak.mk

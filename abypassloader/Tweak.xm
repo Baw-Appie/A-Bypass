@@ -1702,6 +1702,13 @@ static char* my_strstr(char* str1, const char* str2) {
 void showProgress() { [center callExternalMethod:@selector(handleUpdateLicense:) withArguments:@{ @"type": @3, @"max": @"10" }]; }
 void loadingProgress(NSString *per) { [center callExternalMethod:@selector(handleUpdateLicense:) withArguments:@{ @"type": @4, @"per": per, @"max": @"10" }]; }
 void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:) withArguments:@{ @"type": @5 }]; }
+void debugAlert(NSString *text) { 
+  [center callExternalVoidMethod:@selector(handleShowNotification:) withArguments:@{
+    @"title" : @"A-Bypass Debug Alert",
+    @"message" : text,
+    @"identifier": @"com.apple.Preferences"
+  }];
+}
 
 %ctor {
   // return;
@@ -1714,8 +1721,8 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
     // 최종 정상 작동 버전: 6.2.0
 
     // 마지막 분석 결과 기록:
-    // 알 수 없는 긴 함수를 통하여 디버깅을 감지하고 있음.
-    // ObjC 메소드 인젝트 관련 조사 필요
+    // 트윅 인젝션을 감지하고 있음.
+    // 어디 함수인지는 불명확함
   }
 
   NSFileManager *manager = [NSFileManager defaultManager];
@@ -1854,13 +1861,20 @@ void hideProgress() { [center callExternalMethod:@selector(handleUpdateLicense:)
     //       @"identifier": @"com.apple.Preferences"
     //     }];
     //   }
-    // );
+    // ); 
 
     NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.rpgfarm.abypassprefs.plist"];
     if([prefs[@"advanced"][identifier][@"ABASMBlackList"] isEqual:@1]) ABSI.ABASMBlackList = @[identifier];
     if([prefs[@"advanced"][identifier][@"hookSVC80"] isEqual:@1]) ABSI.hookSVC80 = @[identifier];
     if([prefs[@"advanced"][identifier][@"noHookingPlz"] isEqual:@1]) ABSI.noHookingPlz = @[identifier];
     if([prefs[@"advanced"][identifier][@"enforceDYLD"] isEqual:@1]) ABSI.enforceDYLD = @[identifier];
+
+    #ifdef DEBUG
+    if([prefs[@"advanced"][identifier][@"ABASMBlackList"] isEqual:@1]) debugAlert(@"ABASMBlackList is enabled by Advanced Settings.");
+    if([prefs[@"advanced"][identifier][@"hookSVC80"] isEqual:@1]) debugAlert(@"hookSVC80 is enabled by Advanced Settings.");
+    if([prefs[@"advanced"][identifier][@"noHookingPlz"] isEqual:@1]) debugAlert(@"noHookingPlz is enabled by Advanced Settings.");
+    if([prefs[@"advanced"][identifier][@"enforceDYLD"] isEqual:@1]) debugAlert(@"enforceDYLD is enabled by Advanced Settings.");
+    #endif
 
     if([ABSI.hookSVC80 containsObject:identifier]) hookingSVC80();
 
