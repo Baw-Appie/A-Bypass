@@ -33,6 +33,7 @@ include $(THEOS_MAKE_PATH)/aggregate.mk
 
 
 after-stage::
+	@mkdir -p $(THEOS_STAGING_DIR)/usr/lib
 	@mv $(THEOS_STAGING_DIR)/Library/MobileSubstrate/DynamicLibraries/ABDYLD.dylib $(THEOS_STAGING_DIR)/usr/lib/ABDYLD.dylib
 	@rm $(THEOS_STAGING_DIR)/Library/MobileSubstrate/DynamicLibraries/ABDYLD.plist
 	@mv $(THEOS_STAGING_DIR)/Library/MobileSubstrate/DynamicLibraries/ABSubLoader.dylib $(THEOS_STAGING_DIR)/usr/lib/ABSubLoader.dylib
