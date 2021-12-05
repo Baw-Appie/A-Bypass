@@ -22,19 +22,22 @@
 
 BOOL isSubstitute = ([[NSFileManager defaultManager] fileExistsAtPath:@"/usr/lib/libsubstitute.dylib"] && ![[NSFileManager defaultManager] fileExistsAtPath:@"/usr/lib/substrate"]) && ![[NSFileManager defaultManager] fileExistsAtPath:@"/usr/lib/libhooker.dylib"];
 const char *DisableLocation = "/var/tmp/.substitute_disable_loader";
+const char *ABKVDLockPath = "/var/tmp/.abkvd.lock";
 
 static BBServer *bbServer = nil;
 static MRYIPCCenter* center;
 NSArray *disableIdentifiers;
 NSArray *subloader;
+NSArray *vnodeBypassIdentifiers;
+NSArray *vnodeHidePath;
 float iosVersion;
 
-// static void easy_spawn(const char* args[]) {
-//     pid_t pid;
-//     int status;
-//     posix_spawn(&pid, args[0], NULL, NULL, (char* const*)args, NULL);
-//     waitpid(pid, &status, WEXITED);
-// }
+static void easy_spawn(const char* args[]){
+    pid_t pid;
+    int status;
+    posix_spawn(&pid, args[0], NULL, NULL, (char* const*)args, NULL);
+    waitpid(pid, &status, WEXITED);
+}
 
 static dispatch_queue_t getBBServerQueue() {
 	static dispatch_queue_t queue;
@@ -96,6 +99,7 @@ extern "C" CFPropertyListRef MGCopyAnswer(CFStringRef property);
 @interface SpringBoard
 @property (nonatomic, strong) MRYIPCCenter *centerForABypass;
 @property (nonatomic, strong) APLoadingToast *loadingToastForABypass;
+-(SBApplication *)_accessibilityFrontMostApplication;
 @end
 %hook SpringBoard
 %property (strong) MRYIPCCenter *centerForABypass;
@@ -175,7 +179,50 @@ extern "C" CFPropertyListRef MGCopyAnswer(CFStringRef property);
 }
 %end
 
+%hook SBMainWorkspace 
+-(void)applicationProcessDidLaunch:(FBProcess *)arg1 {
+  if (isSubstitute && access(DisableLocation, F_OK) != -1) remove(DisableLocation);
+  // if([vnodeBypassIdentifiers containsObject:arg1.bundleIdentifier]) {
+  //   // [NSThread sleepForTimeInterval:2]; 
+  // }
+  return %orig;
+}
+%end
+#define ABKVD_IS_AVAILABLE access(ABKVDLockPath, F_OK) != -1
+void saveAndHideVnode() {
+  if (ABKVD_IS_AVAILABLE) {
+    MRYIPCCenter *ABKVDCenter = [MRYIPCCenter centerNamed:@"com.rpgfarm.abkvd"];
+    [ABKVDCenter callExternalMethod:@selector(handleABKVDRequest:) withArguments:@{ @"type" : @"updateVnodeHidePath", @"vnodeHidePath": vnodeHidePath }];
+    [ABKVDCenter callExternalMethod:@selector(handleABKVDRequest:) withArguments:@{ @"type" : @"saveAndHideVnode" }];
+    HBLogError(@"[ABKVD] saveAndHideVnode");
+  }
+}
+void revertAndRecoveryVnode() {
+  if (ABKVD_IS_AVAILABLE) {
+    MRYIPCCenter *ABKVDCenter = [MRYIPCCenter centerNamed:@"com.rpgfarm.abkvd"];
+    [ABKVDCenter callExternalMethod:@selector(handleABKVDRequest:) withArguments:@{ @"type" : @"revertAndRecoveryVnode" }];
+    HBLogError(@"[ABKVD] revertAndRecoveryVnode");
+  }
+}
 %hook FBProcessManager
+-(void)noteProcess:(FBApplicationProcess *)process didUpdateState:(FBProcessState *)state {
+  if(process.executionContext.identity.embeddedApplicationIdentifier) {
+    dispatch_async(dispatch_get_main_queue(), ^{
+      SpringBoard *springBoardInstance = (SpringBoard *)[UIApplication sharedApplication];
+      if(!springBoardInstance) return HBLogError(@"[ABKVD] springBoardInstance is null");
+      SBApplication *frontApplication = [springBoardInstance _accessibilityFrontMostApplication];
+      if(!frontApplication) {
+        revertAndRecoveryVnode();
+        return HBLogError(@"[ABKVD] frontApplication is null");
+      }
+      NSString *bundleID = [frontApplication bundleIdentifier];
+      HBLogError(@"[ABKVD] noteProcess %@", bundleID);
+      if([vnodeBypassIdentifiers containsObject:bundleID]) saveAndHideVnode();
+      else revertAndRecoveryVnode();
+    });
+  }
+  %orig;
+}
 - (id)_createProcessWithExecutionContext:(FBProcessExecutionContext *)executionContext {
   NSString *bundleID = executionContext.identity.embeddedApplicationIdentifier;
   NSMutableDictionary* environmentM = [executionContext.environment mutableCopy];
@@ -183,7 +230,8 @@ extern "C" CFPropertyListRef MGCopyAnswer(CFStringRef property);
   if(![plistDict[bundleID] isEqual:@1]) return %orig;
   if([subloader containsObject:bundleID]) [environmentM setObject:@"/usr/lib/ABSubLoader.dylib" forKey:@"DYLD_INSERT_LIBRARIES"];
   if([disableIdentifiers containsObject:bundleID]) [environmentM setObject:@"/usr/lib/ABDYLD.dylib" forKey:@"DYLD_INSERT_LIBRARIES"];
-  if([disableIdentifiers containsObject:bundleID] || [subloader containsObject:bundleID]) {
+  if([vnodeBypassIdentifiers containsObject:bundleID]) saveAndHideVnode();
+  if([disableIdentifiers containsObject:bundleID] || [subloader containsObject:bundleID] || ([vnodeBypassIdentifiers containsObject:bundleID] && ABKVD_IS_AVAILABLE)) {
     if(isSubstitute) {
       fopen(DisableLocation, "w");
     } else {
@@ -201,7 +249,8 @@ extern "C" CFPropertyListRef MGCopyAnswer(CFStringRef property);
   if(![plistDict[bundleID] isEqual:@1]) return %orig;
   if([subloader containsObject:bundleID]) [environmentM setObject:@"/usr/lib/ABSubLoader.dylib" forKey:@"DYLD_INSERT_LIBRARIES"];
   if([disableIdentifiers containsObject:bundleID]) [environmentM setObject:@"/usr/lib/ABDYLD.dylib" forKey:@"DYLD_INSERT_LIBRARIES"];
-  if([disableIdentifiers containsObject:bundleID] || [subloader containsObject:bundleID]) {
+  if([vnodeBypassIdentifiers containsObject:bundleID]) saveAndHideVnode();
+  if([disableIdentifiers containsObject:bundleID] || [subloader containsObject:bundleID] || ([vnodeBypassIdentifiers containsObject:bundleID] && ABKVD_IS_AVAILABLE)) {
     if(isSubstitute) {
       fopen(DisableLocation, "w");
     } else {
@@ -234,6 +283,10 @@ extern "C" CFPropertyListRef MGCopyAnswer(CFStringRef property);
     iosVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
     disableIdentifiers = [dic[@"disableIdentifiers"] copy];
     subloader = [dic[@"subloader"] copy];
+    vnodeBypassIdentifiers = [dic[@"vnodeBypassIdentifiers"] copy];
+    vnodeHidePath = [dic[@"vnodeHidePath"] copy];
+
+    if([[NSFileManager defaultManager] fileExistsAtPath:@"/usr/bin/ABKVD"]) easy_spawn((const char *[]){"/usr/bin/ABKVD", NULL});
 
 		%init(SpringBoard);
 		return;

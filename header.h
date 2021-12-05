@@ -1,3 +1,7 @@
+@interface SBApplication
+-(NSString *)bundleIdentifier;
+@end
+
 @interface FBProcessState
 @property (assign,nonatomic) int pid;
 @property (assign,nonatomic) long long taskState;
@@ -15,6 +19,9 @@
 @interface FBProcessExecutionContext : NSObject
 @property (nonatomic,copy) NSDictionary* environment;
 @property (nonatomic,copy) RBSProcessIdentity* identity;
+@end
+@interface FBApplicationProcess : NSObject
+@property (nonatomic,copy,readonly) FBProcessExecutionContext * executionContext;
 @end
 
 
