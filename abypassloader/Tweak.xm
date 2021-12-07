@@ -1897,7 +1897,11 @@ void debugAlert(NSString *text) {
           patchData(0x1004f64dc, 0xC0035FD6);
           patchData(0x100e4ec94, 0xC0035FD6);
           patchData(0x1012175f4, 0xC0035FD6);
-        }
+        } else if([version isEqualToString:@"5.38.0"]) {
+          patchData(0x10069d3e4, 0xC0035FD6);
+          patchData(0x1014c1068, 0xC0035FD6);
+          patchData(0x1016fa598, 0xC0035FD6);
+        } 
 
         // 이건 자동으로 찾아내는 것
         remove1();
