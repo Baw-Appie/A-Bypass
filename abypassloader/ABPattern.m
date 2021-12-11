@@ -98,7 +98,7 @@
   if([path isEqualToString:@"/sbin/mount"] && index == 30001) return true;
   if([path isEqualToString:@"/sbin/mount"]) return false;
   if([path isEqualToString:@"/Applications"] || [path isEqualToString:@"/Applications/"] || [path isEqualToString:@"/usr/lib/"] || [path hasPrefix:@"/usr/lib/libobjc"] || [path containsString:@"libobjc"] || [path containsString:@"DSTK_DO_LOG"] || [path hasPrefix:@"/usr/lib/system"]) return true;
-  if([path containsString:@"liberty"] || [path containsString:@"jailprotect"] || [path containsString:@"tsprotector"]) return false;
+  if([path containsString:@"liberty"] || [path containsString:@"jailprotect"] || [path containsString:@"tsprotector"] || [path containsString:@"kernbypass"] || [path containsString:@"vnodebypass"]) return false;
   if([path containsString:@"AppList"] || [path containsString:@"PreferenceLoader"] || [path containsString:@"SnowBoard"] || [path containsString:@"Snowboard"] || [path containsString:@"iCleaner"]) return false;
   if([path hasSuffix:@"xargs"] || [path hasSuffix:@"unzip2"] || [path hasSuffix:@"libsubstrate.dylib"] || [path hasSuffix:@"substrate.h"] || [path hasSuffix:@"recache"]) return false;
   if(([path hasPrefix:@"/Library/MobileSubstrate/"] || [path hasPrefix:@"/usr/lib/TweakInject/"]) && ([path hasSuffix:@".dylib"] || [path hasSuffix:@".plist"])) {
