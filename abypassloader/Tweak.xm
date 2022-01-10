@@ -41,8 +41,6 @@
 
 #define ABSI [ABPattern sharedInstance]
 
-// #define MSHookFunction DobbyHook
-
 static MRYIPCCenter* center;
 NSString *identifier;
 BOOL isSubstitute;
@@ -1876,11 +1874,14 @@ void debugAlert(NSString *text) {
     if([prefs[@"advanced"][identifier][@"enforceDYLD"] isEqual:@1]) debugAlert(@"enforceDYLD is enabled by Advanced Settings.");
     #endif
 
+    float iosVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
+    NSString *version = [[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"];
+
     if([ABSI.hookSVC80 containsObject:identifier]) hookingSVC80();
 
     if([identifier isEqualToString:@"com.vivarepublica.cash"]) {
       if(!objc_getClass("StockNewsdmManager")) {
-        NSString *version = [[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"];
+        
         if([version isEqualToString:@"5.5.0"]) {
           // didFinishLaunchingWithOptions 최상단
           patchData(0x101290dc4, 0xC0035FD6);
@@ -1927,20 +1928,12 @@ void debugAlert(NSString *text) {
     %init(ObjcMethods);
     loadingProgress(@"4");
 
-    float iosVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
-    NSString *version = [[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"];
-
     if([identifier isEqualToString:@"com.kakao.taxi"]) %init(KakaoTaxiFix);
     if([identifier isEqualToString:@"com.iwilab.KakaoTalk"]) return hideProgress();
     if([identifier isEqualToString:@"com.samsungcard.shopping"]) return hideProgress();
     if([identifier isEqualToString:@"com.nhncorp.NaverSearch"]) return hideProgress();
     if([identifier isEqualToString:@"com.nhnent.TOASTPAY"]) {
-      if([version isEqualToString:@"3.16.0"]) {
-        patchData(0x101171BD0, 0xC0035FD6);
-        patchData(0x100573E40, 0xC0035FD6);
-      } else {
-        hookingAccessSVC80();
-      }
+      hookingAccessSVC80();
       return hideProgress();
     }
     // if([identifier isEqualToString:@"com.unveilapp.unveil"]) {

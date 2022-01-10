@@ -1,5 +1,6 @@
 // #import "ABPattern.m"
 
+// #define MSHookFunction DobbyHook
 #define ABPattern AppIePattern
 
 #define getIvar(object, ivar) [object valueForKey:ivar]
