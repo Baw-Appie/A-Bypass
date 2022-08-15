@@ -194,14 +194,14 @@ void saveAndHideVnode() {
     MRYIPCCenter *ABKVDCenter = [MRYIPCCenter centerNamed:@"com.rpgfarm.abkvd"];
     [ABKVDCenter callExternalMethod:@selector(handleABKVDRequest:) withArguments:@{ @"type" : @"updateVnodeHidePath", @"vnodeHidePath": vnodeHidePath }];
     [ABKVDCenter callExternalMethod:@selector(handleABKVDRequest:) withArguments:@{ @"type" : @"saveAndHideVnode" }];
-    HBLogError(@"[ABKVD] saveAndHideVnode");
+    // HBLogError(@"[ABKVD] saveAndHideVnode");
   }
 }
 void revertAndRecoveryVnode() {
   if (ABKVD_IS_AVAILABLE) {
     MRYIPCCenter *ABKVDCenter = [MRYIPCCenter centerNamed:@"com.rpgfarm.abkvd"];
     [ABKVDCenter callExternalMethod:@selector(handleABKVDRequest:) withArguments:@{ @"type" : @"revertAndRecoveryVnode" }];
-    HBLogError(@"[ABKVD] revertAndRecoveryVnode");
+    // HBLogError(@"[ABKVD] revertAndRecoveryVnode");
   }
 }
 %hook FBProcessManager
@@ -209,14 +209,13 @@ void revertAndRecoveryVnode() {
   if(process.executionContext.identity.embeddedApplicationIdentifier) {
     dispatch_async(dispatch_get_main_queue(), ^{
       SpringBoard *springBoardInstance = (SpringBoard *)[UIApplication sharedApplication];
-      if(!springBoardInstance) return HBLogError(@"[ABKVD] springBoardInstance is null");
+      if(!springBoardInstance) return;
       SBApplication *frontApplication = [springBoardInstance _accessibilityFrontMostApplication];
       if(!frontApplication) {
         revertAndRecoveryVnode();
-        return HBLogError(@"[ABKVD] frontApplication is null");
+        return;
       }
       NSString *bundleID = [frontApplication bundleIdentifier];
-      HBLogError(@"[ABKVD] noteProcess %@", bundleID);
       if([vnodeBypassIdentifiers containsObject:bundleID]) saveAndHideVnode();
       else revertAndRecoveryVnode();
     });
