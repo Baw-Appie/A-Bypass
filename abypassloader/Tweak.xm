@@ -1989,14 +1989,11 @@ void debugAlert(NSString *text) {
     if(0)MSHookFunction((void *)dlsym(RTLD_DEFAULT, "syscall"), (void *)hooked_syscall, (void **)&orig_syscall);
     loadingProgress(@"8");
 
-    if(!objc_getClass("Eversafe")) {
-      if((isLibHooker && iosVersion < 14) || [ABSI.enforceDYLD containsObject:identifier]) {
-        void DYLDSaver();
-        DYLDSaver();
-      } else {
-        %init(dyldUnc0ver);
-      }
-  		// _dyld_register_func_for_add_image(&image_added);
+    if(objc_getClass("Eversafe") || (isLibHooker && iosVersion < 14) || [ABSI.enforceDYLD containsObject:identifier]) {
+      void DYLDSaver();
+      DYLDSaver();
+    } else {
+      %init(dyldUnc0ver);
     }
 
     loadingProgress(@"9");
