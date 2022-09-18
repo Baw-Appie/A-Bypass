@@ -1642,7 +1642,7 @@ static DIR *hook_opendir(const char *filename) {
   // HBLogError(@"ABPattern opendir detected.");
   if(filename) {
     NSString *path = @(filename);
-    if(![[ABPattern sharedInstance] u:path i:20025]) {
+    if(![[ABPattern sharedInstance] u:path i:20027]) {
       errno = ENOENT;
       return NULL;
     }

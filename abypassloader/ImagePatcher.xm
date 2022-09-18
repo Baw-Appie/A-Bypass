@@ -765,7 +765,7 @@ void hookingAccessSVC80Handler(RegisterContext *reg_ctx, const HookEntryInfo *in
   // debugMsg(@"[ABPattern] ABZZ %@", path);
   [regex replaceMatchesInString:path options:0 range:NSMakeRange(0, [path length]) withTemplate:@""];
   debugMsg(@"[ABPattern] ABZZ %@", path);
-  if(![[ABPattern sharedInstance] u:path i:30001] && ![path isEqualToString:@"/sbin/mount"]) {
+  if(![[ABPattern sharedInstance] u:path i:30002] && ![path isEqualToString:@"/sbin/mount"]) {
     *(unsigned long *)(&reg_ctx->general.regs.x0) = (unsigned long long)"/Protected.By.ABypass";
   } else {
     debugMsg(@"[ABPattern] ABZZ not blocked! %@", path);
