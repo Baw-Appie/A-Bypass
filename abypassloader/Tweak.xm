@@ -308,9 +308,10 @@ int isSafePTR(int64_t ptr) {
   if(![identifier isEqualToString:@"com.idongbu.sca"]) return %orig;
   return (id)CFSTR("0000");
 }
--(int)isDeviceRooting {
-  return 0;
-}
+// 북앤라이프(3.2.3) 허니팟
+// -(int)isDeviceRooting {
+//   return 0;
+// }
 %end
 %hook iIiIIiIii
 -(id)IiIIiIiII:(id)arg1 {
