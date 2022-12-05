@@ -1385,14 +1385,28 @@ int stat(const char *path, struct stat *result);
 }
 
 %hookf(int, csops, pid_t pid, unsigned int ops, void *useraddr, size_t usersize) {
-    int ret = %orig;
+  int ret = %orig;
 
-    if(ops == CS_OPS_STATUS && (ret & CS_PLATFORM_BINARY) == CS_PLATFORM_BINARY && pid == getpid()) {
-        // Ensure that the platform binary flag is not set.
-        ret &= ~CS_PLATFORM_BINARY;
+  if(pid == getpid()) {
+    if(ops == CS_OPS_STATUS) {
+      // (Un)set some flags
+      ret &= ~CS_PLATFORM_BINARY;
+      ret &= ~CS_GET_TASK_ALLOW;
     }
 
-    return ret;
+    if(ops == CS_OPS_CDHASH) {
+      // Hide CDHASH for trustcache checks
+      errno = EBADEXEC;
+      return -1;
+    }
+
+    if(ops == CS_OPS_MARKKILL) {
+      errno = EBADEXEC;
+      return -1;
+    }
+  }
+
+  return ret;
 }
 %hookf(const char * _Nonnull *, objc_copyImageNames, unsigned int *outCount) {
     const char * _Nonnull *ret = %orig;
@@ -1569,12 +1583,60 @@ typedef int8 BYTE;
   return ret;
   // return KERN_FAILURE;
 }
+
+%hookf(kern_return_t, task_for_pid, task_port_t task, pid_t pid, task_port_t* target) {
+  // 실제로는 앱이 task_for_pid에 대한 권한이 있을 수도 있기 때문에 오류가 발생할 가능성이 매우 높음
+  // 그러나, Apple 앱 이외에 이걸 가지고 있을 이유는 전혀 없어 보임.
+  // 탈옥 감지는 Apple 앱에서 수행되지 않기 때문에 이걸 하더라도 전혀 문제가 없음.
+  return KERN_FAILURE;
+}
+%hookf(kern_return_t, host_get_special_port, host_priv_t host_priv, int node, int which, mach_port_t* port) {
+  if(node == HOST_LOCAL_NODE) {
+    if(which == HOST_PRIV_PORT) {
+        if(port) *port = MACH_PORT_NULL;
+        return KERN_SUCCESS;
+    }
+    if(which == 4 /* kernel (hgsp4) */) return KERN_FAILURE;
+    if(which == HOST_SEATBELT_PORT) return KERN_FAILURE;
+  }
+  return %orig;
+}
+
+
 // %hookf(int, exit, int status) {
 //   HBLogError(@"[ABExit] %d %@", status, [NSThread callStackSymbols]);
 //   return 1;
 // }
 %end
 
+static int (*orig_fcntl)(int fd, int cmd, ...);
+static int hook_fcntl(int fd, int cmd, ...) {
+  void* arg[6];
+  va_list args;
+  va_start(args, cmd);
+  arg[0] = va_arg(args, void*);
+  arg[1] = va_arg(args, void*);
+  arg[2] = va_arg(args, void*);
+  arg[3] = va_arg(args, void*);
+  arg[4] = va_arg(args, void*);
+  arg[5] = va_arg(args, void*);
+  va_end(args);
+
+  if(cmd == F_ADDSIGS) {
+    // Prevent adding invalid code signatures.
+    errno = EINVAL;
+    return -1;
+  }
+
+  // if(cmd == F_CHECK_LV) {
+  //     // Library Validation
+  //     return 0;
+  // }
+
+  if(cmd == F_ADDFILESIGS_RETURN) return -1;
+
+  return orig_fcntl(fd, cmd, arg[0], arg[1], arg[2], arg[3], arg[4], arg[5]);
+}
 
 static int (*orig_open)(const char *path, int oflag, ...);
 static int hook_open(const char *path, int oflag, ...) {
@@ -1981,7 +2043,10 @@ void debugAlert(NSString *text) {
 
     loadingProgress(@"7");
 
-    if(!(iosVersion > 14 && !isLibHooker && !isSubstitute)) MSHookFunction((void *)open, (void *)hook_open, (void **)&orig_open);
+    if(!(iosVersion > 14 && !isLibHooker && !isSubstitute)) {
+      MSHookFunction((void *)open, (void *)hook_open, (void **)&orig_open);
+      MSHookFunction((void *)fcntl, (void *)hook_fcntl, (void **)&orig_fcntl);
+    }
     else abreset((struct rebinding[1]){{"open", (void *)hook_open, (void **)&orig_open}}, 1);
     // Fishhook 다 개소리.. 작동 안함!
     abreset((struct rebinding[1]){{"opendir", (void *)hook_opendir, (void **)&orig_opendir}}, 1);
