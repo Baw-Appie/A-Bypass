@@ -20,7 +20,9 @@
 #import "header.h"
 #import "ABWindow.h"
 
-BOOL isSubstitute = ([[NSFileManager defaultManager] fileExistsAtPath:@"/usr/lib/libsubstitute.dylib"] && ![[NSFileManager defaultManager] fileExistsAtPath:@"/usr/lib/substrate"]) && ![[NSFileManager defaultManager] fileExistsAtPath:@"/usr/lib/libhooker.dylib"];
+NSFileManager *fileManager = [NSFileManager defaultManager];
+BOOL isSubstitute = ([fileManager fileExistsAtPath:@"/usr/lib/libsubstitute.dylib"] && ![fileManager fileExistsAtPath:@"/usr/lib/substrate"]) && ![fileManager fileExistsAtPath:@"/usr/lib/libhooker.dylib"];
+NSString *ABLoaderPath = [fileManager fileExistsAtPath:@"/var/Liy"] ? @"/var/Liy/Library/BawAppie/ABypass/ABLicense" : @"/Library/BawAppie/ABypass/ABLicense";
 const char *DisableLocation = "/var/tmp/.substitute_disable_loader";
 const char *ABKVDLockPath = "/var/tmp/.abkvd.lock";
 
@@ -138,10 +140,10 @@ extern "C" CFPropertyListRef MGCopyAnswer(CFStringRef property);
     NSData *oResponseData = [NSURLConnection sendSynchronousRequest:request returningResponse:&responseCode error:&error];
     #pragma clang diagnostic pop
     if(error) return @{@"success": @0, @"message": [error localizedDescription], @"errno": @1};
-    [oResponseData writeToFile:@"/Library/BawAppie/ABypass/ABLicense" options:0 error:&error];
+    [oResponseData writeToFile:ABLoaderPath options:0 error:&error];
     if(error) return @{@"success": @0, @"message": [error localizedDescription], @"errno": @2};
   } else if([userInfo[@"type"] isEqual:@2]) {
-    [[NSFileManager defaultManager] removeItemAtPath:@"/Library/BawAppie/ABypass/ABLoader" error:&error];
+    [fileManager removeItemAtPath:@"/Library/BawAppie/ABypass/ABLoader" error:&error];
   } else
   #endif
   if([userInfo[@"type"] isEqual:@3]) {
@@ -164,7 +166,7 @@ extern "C" CFPropertyListRef MGCopyAnswer(CFStringRef property);
       });
     });
   } else if([userInfo[@"type"] isEqual:@6]) {
-    [[NSFileManager defaultManager] removeItemAtPath:@"/var/mobile/Library/Preferences/ABLivePatch" error:&error];
+    [fileManager removeItemAtPath:@"/var/mobile/Library/Preferences/ABLivePatch" error:&error];
   }
   if(error) return @{@"success": @0, @"message": [error localizedDescription]};
   return @{@"success": @1};
@@ -285,7 +287,7 @@ void revertAndRecoveryVnode() {
     vnodeBypassIdentifiers = [dic[@"vnodeBypassIdentifiers"] copy];
     vnodeHidePath = [dic[@"vnodeHidePath"] copy];
 
-    if([[NSFileManager defaultManager] fileExistsAtPath:@"/usr/bin/ABKVD"]) easy_spawn((const char *[]){"/usr/bin/ABKVD", NULL});
+    if([fileManager fileExistsAtPath:@"/usr/bin/ABKVD"]) easy_spawn((const char *[]){"/usr/bin/ABKVD", NULL});
 
 		%init(SpringBoard);
 		return;
@@ -293,7 +295,7 @@ void revertAndRecoveryVnode() {
 
 	if([plistDict[identifier] isEqual:@1]) {
 
-    if(plistDict[@"stopABLivePatch"] && ![[NSFileManager defaultManager] fileExistsAtPath:@"/Library/BawAppie/ABypass/ABLicense"]) {
+    if(plistDict[@"stopABLivePatch"] && ![fileManager fileExistsAtPath:ABLoaderPath]) {
       [center callExternalVoidMethod:@selector(handleShowNotification:) withArguments:@{
         @"title" : @"A-Bypass Live Patch",
         @"message" : @"A-Bypass Live Patch is not available. Starting Live Patch Update..",
@@ -303,7 +305,7 @@ void revertAndRecoveryVnode() {
     }
 
     if(!plistDict[@"stopABLivePatch"]) {
-      if([[NSFileManager defaultManager] fileExistsAtPath:@"/var/mobile/Library/Preferences/ABLivePatch"]) {
+      if([fileManager fileExistsAtPath:@"/var/mobile/Library/Preferences/ABLivePatch"]) {
         [center callExternalMethod:@selector(handleUpdateLicense:) withArguments:@{ @"type": @6, @"identifier": identifier }];
       }
       NSDictionary *result = [center callExternalMethod:@selector(handleUpdateLicense:) withArguments:@{
@@ -311,7 +313,7 @@ void revertAndRecoveryVnode() {
         @"identifier": identifier
       }];
       if([result[@"success"] isEqual:@0]) {
-        if([result[@"errno"] isEqual:@1] && [[NSFileManager defaultManager] fileExistsAtPath:@"/Library/BawAppie/ABypass/ABLicense"]) {
+        if([result[@"errno"] isEqual:@1] && [fileManager fileExistsAtPath:ABLoaderPath]) {
           [center callExternalVoidMethod:@selector(handleShowNotification:) withArguments:@{
             @"title" : @"A-Bypass Live Patch",
             @"message" : [NSString stringWithFormat:@"ABLoader is unable to update A-Bypass. (A network error has occurred: %@)", result[@"message"]],
@@ -328,7 +330,7 @@ void revertAndRecoveryVnode() {
         }
       }
 
-      if(![[NSFileManager defaultManager] fileExistsAtPath:@"/Library/BawAppie/ABypass/ABLicense"]) {
+      if(![fileManager fileExistsAtPath:ABLoaderPath]) {
         [center callExternalVoidMethod:@selector(handleShowNotification:) withArguments:@{
           @"title" : @"ABLoader Exception",
           @"message" : @"ABLoader is unable to load A-Bypass. Please report this error to @BawAppie (License is not verified)",
@@ -340,7 +342,7 @@ void revertAndRecoveryVnode() {
     }
 
     // HBLogError(@"[ABLoader] Start Loading!");
-    void *loader = dlopen("/Library/BawAppie/ABypass/ABLicense", RTLD_NOW);
+    void *loader = dlopen([ABLoaderPath UTF8String], RTLD_NOW);
 
     if(loader == nil) {
       // easy_spawn((const char *[]){"/usr/bin/cynject", [[NSString stringWithFormat:@"%d", getpid()] UTF8String], "/Library/BawAppie/ABypass/ABLicense", NULL});
