@@ -20,9 +20,10 @@
 #import "header.h"
 #import "ABWindow.h"
 
-NSFileManager *fileManager = [NSFileManager defaultManager];
+// NSFileManager *fileManager = [NSFileManager defaultManager];
+#define fileManager [NSFileManager defaultManager]
 BOOL isSubstitute = ([fileManager fileExistsAtPath:@"/usr/lib/libsubstitute.dylib"] && ![fileManager fileExistsAtPath:@"/usr/lib/substrate"]) && ![fileManager fileExistsAtPath:@"/usr/lib/libhooker.dylib"];
-NSString *ABLoaderPath = [fileManager fileExistsAtPath:@"/var/Liy"] ? @"/var/Liy/Library/BawAppie/ABypass/ABLicense" : @"/Library/BawAppie/ABypass/ABLicense";
+NSString *ABLoaderPath = [fileManager fileExistsAtPath:@"/var/Liy/"] ? @"/var/Liy/Library/BawAppie/ABypass/ABLicense" : @"/Library/BawAppie/ABypass/ABLicense";
 const char *DisableLocation = "/var/tmp/.substitute_disable_loader";
 const char *ABKVDLockPath = "/var/tmp/.abkvd.lock";
 
@@ -143,7 +144,7 @@ extern "C" CFPropertyListRef MGCopyAnswer(CFStringRef property);
     [oResponseData writeToFile:ABLoaderPath options:0 error:&error];
     if(error) return @{@"success": @0, @"message": [error localizedDescription], @"errno": @2};
   } else if([userInfo[@"type"] isEqual:@2]) {
-    [fileManager removeItemAtPath:@"/Library/BawAppie/ABypass/ABLoader" error:&error];
+    [fileManager removeItemAtPath:ABLoaderPath error:&error];
   } else
   #endif
   if([userInfo[@"type"] isEqual:@3]) {
@@ -274,6 +275,7 @@ void revertAndRecoveryVnode() {
 	NSString *identifier = [NSBundle mainBundle].bundleIdentifier;
 	NSMutableDictionary *plistDict = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.rpgfarm.abypassprefs.plist"];
   center = [MRYIPCCenter centerNamed:@"com.rpgfarm.a-bypass"];
+  ABLoaderPath = [fileManager fileExistsAtPath:@"/var/Liy/"] ? @"/var/Liy/Library/BawAppie/ABypass/ABLicense" : @"/Library/BawAppie/ABypass/ABLicense";
 
 	if([identifier isEqualToString:@"com.apple.springboard"]) {
     dlopen("/usr/local/lib/libAPToast.dylib", RTLD_NOW);
