@@ -1793,13 +1793,13 @@ void debugAlert(NSString *text) {
   }
 
   NSFileManager *manager = [NSFileManager defaultManager];
-  if(![manager fileExistsAtPath:@"/Library/MobileSubstrate/DynamicLibraries/!ABypass2.dylib"]) {
-    [center callExternalVoidMethod:@selector(handleShowNotification:) withArguments:@{
-      @"title" : @"A-Bypass Warning",
-      @"message" : @"A-Bypass has been restricted for an unknown reason. Try disabling other tweaks. (like FlyJB, Shadow, Liberty Lite)",
-      @"identifier": @"com.apple.Preferences"
-    }];
-  }
+  // if(![manager fileExistsAtPath:@"/Library/MobileSubstrate/DynamicLibraries/!ABypass2.dylib"]) {
+  //   [center callExternalVoidMethod:@selector(handleShowNotification:) withArguments:@{
+  //     @"title" : @"A-Bypass Warning",
+  //     @"message" : @"A-Bypass has been restricted for an unknown reason. Try disabling other tweaks. (like FlyJB, Shadow, Liberty Lite)",
+  //     @"identifier": @"com.apple.Preferences"
+  //   }];
+  // }
 
   NSMutableDictionary *flyjb = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/kr.xsf1re.flyjb.plist"];
   if(([manager fileExistsAtPath:@"/Library/MobileSubstrate/DynamicLibraries/ FlyJB2.dylib"] || [manager fileExistsAtPath:@"/Library/MobileSubstrate/DynamicLibraries/ FlyJB.dylib"] || [manager fileExistsAtPath:@"/Library/MobileSubstrate/DynamicLibraries/ FlyJBX.dylib"]) && [flyjb[identifier] isEqual:@1]) {
