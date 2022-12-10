@@ -313,44 +313,38 @@ int isSafePTR(int64_t ptr) {
 //   return 0;
 // }
 %end
-// %hook iIiIIiIii
-// -(id)IiIIiIiII:(id)arg1 {
-//   NSData *orig = %orig;
-//   NSString* decode = [[NSString alloc] initWithData:orig encoding:4];
-//   decode = [decode stringByReplacingOccurrencesOfString:@"/var" withString:@"/ABypass"];
-//   decode = [decode stringByReplacingOccurrencesOfString:@"/Library" withString:@"/ABypass"];
-//   decode = [decode stringByReplacingOccurrencesOfString:@"/Applications" withString:@"/ABypass"];
-//   decode = [decode stringByReplacingOccurrencesOfString:@"/usr" withString:@"/ABypass"];
-//   decode = [decode stringByReplacingOccurrencesOfString:@"/etc" withString:@"/ABypass"];
-//   decode = [decode stringByReplacingOccurrencesOfString:@"/private" withString:@"/ABypass"];
-//   decode = [decode stringByReplacingOccurrencesOfString:@"/System" withString:@"/ABypass"];
-//   decode = [decode stringByReplacingOccurrencesOfString:@"/bin" withString:@"/ABypass"];
-//   NSData *encode = [decode dataUsingEncoding:NSUTF8StringEncoding];
-//   return encode;
-// }
-// %end
-// %hook iiiIIiIi
-// - (id)IiIIiIiII:(id)arg1 {
-//   NSData *orig = %orig;
-//   NSString* decode = [[NSString alloc] initWithData:orig encoding:4];
-//   decode = [decode stringByReplacingOccurrencesOfString:@"/var" withString:@"/ABypass"];
-//   decode = [decode stringByReplacingOccurrencesOfString:@"/Library" withString:@"/ABypass"];
-//   decode = [decode stringByReplacingOccurrencesOfString:@"/Applications" withString:@"/ABypass"];
-//   decode = [decode stringByReplacingOccurrencesOfString:@"/usr" withString:@"/ABypass"];
-//   decode = [decode stringByReplacingOccurrencesOfString:@"/etc" withString:@"/ABypass"];
-//   decode = [decode stringByReplacingOccurrencesOfString:@"/private" withString:@"/ABypass"];
-//   decode = [decode stringByReplacingOccurrencesOfString:@"/System" withString:@"/ABypass"];
-//   decode = [decode stringByReplacingOccurrencesOfString:@"/bin" withString:@"/ABypass"];
-//   NSData *encode = [decode dataUsingEncoding:NSUTF8StringEncoding];
-//   return encode;
-// }
-// %end
-// %hook IiiIiIIii
-// +(bool)IiIiIiiII:(void *)arg2 {
-//   HBLogError(@"[ABPattern] %@ %d", arg2, %orig);
-//   return false;
-// }
-// %end
+%hook iIiIIiIii
+-(id)IiIIiIiII:(id)arg1 {
+  NSData *orig = %orig;
+  NSString* decode = [[NSString alloc] initWithData:orig encoding:4];
+  decode = [decode stringByReplacingOccurrencesOfString:@"/var" withString:@"/ABypass"];
+  decode = [decode stringByReplacingOccurrencesOfString:@"/Library" withString:@"/ABypass"];
+  decode = [decode stringByReplacingOccurrencesOfString:@"/Applications" withString:@"/ABypass"];
+  decode = [decode stringByReplacingOccurrencesOfString:@"/usr" withString:@"/ABypass"];
+  decode = [decode stringByReplacingOccurrencesOfString:@"/etc" withString:@"/ABypass"];
+  decode = [decode stringByReplacingOccurrencesOfString:@"/private" withString:@"/ABypass"];
+  decode = [decode stringByReplacingOccurrencesOfString:@"/System" withString:@"/ABypass"];
+  decode = [decode stringByReplacingOccurrencesOfString:@"/bin" withString:@"/ABypass"];
+  NSData *encode = [decode dataUsingEncoding:NSUTF8StringEncoding];
+  return encode;
+}
+%end
+%hook iiiIIiIi
+- (id)IiIIiIiII:(id)arg1 {
+  NSData *orig = %orig;
+  NSString* decode = [[NSString alloc] initWithData:orig encoding:4];
+  decode = [decode stringByReplacingOccurrencesOfString:@"/var" withString:@"/ABypass"];
+  decode = [decode stringByReplacingOccurrencesOfString:@"/Library" withString:@"/ABypass"];
+  decode = [decode stringByReplacingOccurrencesOfString:@"/Applications" withString:@"/ABypass"];
+  decode = [decode stringByReplacingOccurrencesOfString:@"/usr" withString:@"/ABypass"];
+  decode = [decode stringByReplacingOccurrencesOfString:@"/etc" withString:@"/ABypass"];
+  decode = [decode stringByReplacingOccurrencesOfString:@"/private" withString:@"/ABypass"];
+  decode = [decode stringByReplacingOccurrencesOfString:@"/System" withString:@"/ABypass"];
+  decode = [decode stringByReplacingOccurrencesOfString:@"/bin" withString:@"/ABypass"];
+  NSData *encode = [decode dataUsingEncoding:NSUTF8StringEncoding];
+  return encode;
+}
+%end
 %hook Sanne
 -(NSDictionary *)sanneResult {
   return @{@"ResultCode": @"0000"};
