@@ -23,7 +23,8 @@
 // NSFileManager *fileManager = [NSFileManager defaultManager];
 #define fileManager [NSFileManager defaultManager]
 BOOL isSubstitute = ([fileManager fileExistsAtPath:@"/usr/lib/libsubstitute.dylib"] && ![fileManager fileExistsAtPath:@"/usr/lib/substrate"]) && ![fileManager fileExistsAtPath:@"/usr/lib/libhooker.dylib"];
-NSString *ABLoaderPath = [fileManager fileExistsAtPath:@"/var/Liy/"] ? @"/var/Liy/Library/BawAppie/ABypass/ABLicense" : @"/Library/BawAppie/ABypass/ABLicense";
+BOOL isXinaA12 = [fileManager fileExistsAtPath:@"/var/LIY/"];
+NSString *ABLoaderPath = isXinaA12 ? @"/var/LIY/BawAppie/ABypass/ABLicense" : @"/Library/BawAppie/ABypass/ABLicense";
 const char *DisableLocation = "/var/tmp/.substitute_disable_loader";
 const char *ABKVDLockPath = "/var/tmp/.abkvd.lock";
 
@@ -140,6 +141,13 @@ extern "C" CFPropertyListRef MGCopyAnswer(CFStringRef property);
     #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     NSData *oResponseData = [NSURLConnection sendSynchronousRequest:request returningResponse:&responseCode error:&error];
     #pragma clang diagnostic pop
+    if(isXinaA12) {
+      NSMutableData *updatedData = [oResponseData mutableCopy];
+      [updatedData replaceBytesInRange:[updatedData rangeOfData:[@"/Library/BawAppie" dataUsingEncoding:NSUTF8StringEncoding] options:0 range:NSMakeRange(0, [updatedData length])] withBytes:[[@"/var/LIY/BawAppie" dataUsingEncoding:NSUTF8StringEncoding] bytes]];
+      [updatedData replaceBytesInRange:[updatedData rangeOfData:[@"/Library/Frameworks/CydiaSubstrate" dataUsingEncoding:NSUTF8StringEncoding] options:0 range:NSMakeRange(0, [updatedData length])] withBytes:[[@"/var/LIY/Frameworks/CydiaSubstrate" dataUsingEncoding:NSUTF8StringEncoding] bytes]];
+      oResponseData = updatedData;
+      // if(error) return @{@"success": @0, @"message": [error localizedDescription], @"errno": @3};
+    }
     if(error) return @{@"success": @0, @"message": [error localizedDescription], @"errno": @1};
     [oResponseData writeToFile:ABLoaderPath options:0 error:&error];
     if(error) return @{@"success": @0, @"message": [error localizedDescription], @"errno": @2};
@@ -275,7 +283,8 @@ void revertAndRecoveryVnode() {
 	NSString *identifier = [NSBundle mainBundle].bundleIdentifier;
 	NSMutableDictionary *plistDict = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.rpgfarm.abypassprefs.plist"];
   center = [MRYIPCCenter centerNamed:@"com.rpgfarm.a-bypass"];
-  ABLoaderPath = [fileManager fileExistsAtPath:@"/var/Liy/"] ? @"/var/Liy/Library/BawAppie/ABypass/ABLicense" : @"/Library/BawAppie/ABypass/ABLicense";
+  isXinaA12 = [fileManager fileExistsAtPath:@"/var/LIY/"];
+  ABLoaderPath = isXinaA12 ? @"/var/LIY/BawAppie/ABypass/ABLicense" : @"/Library/BawAppie/ABypass/ABLicense";
 
 	if([identifier isEqualToString:@"com.apple.springboard"]) {
     dlopen("/usr/local/lib/libAPToast.dylib", RTLD_NOW);
