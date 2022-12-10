@@ -1,7 +1,7 @@
 #import "ABPattern.h"
 
 @implementation AppIePattern
-
+BOOL isLibHooker;
 +(instancetype)sharedInstance {
   static dispatch_once_t p = 0;
   __strong static id _sharedSelf = nil;
@@ -12,6 +12,7 @@
 }
 
 -(id)init {
+  isLibHooker = [[NSFileManager defaultManager] fileExistsAtPath:@"/usr/lib/libhooker.dylib"];
   self = [super init];
   if(self) {
     k = [NSMutableArray new];
@@ -90,7 +91,7 @@
     [pathComponents removeObjectAtIndex:1];
     path = [NSString pathWithComponents:pathComponents];
   }
-  if([path containsString:@"ABypass"] || [path containsString:@"ABPattern"] || [path containsString:@"AutoTouch"] || [path containsString:@"flyjb"]) {
+  if([path containsString:@"ABypass"] || [path containsString:@"ABPattern"] || [path containsString:@"AutoTouch"] || [path containsString:@"flyjb"] || [path containsString:@"Flex.plist"]) {
     // HBLogError(@"[ABPattern] 아니 뭐하세요..?? %@ %@", path, [NSThread callStackSymbols]);
     return false;
   }
@@ -101,15 +102,18 @@
   if([path containsString:@"liberty"] || [path containsString:@"jailprotect"] || [path containsString:@"tsprotector"] || [path containsString:@"kernbypass"] || [path containsString:@"vnodebypass"]) return false;
   if([path containsString:@"AppList"] || [path containsString:@"PreferenceLoader"] || [path containsString:@"SnowBoard"] || [path containsString:@"Snowboard"] || [path containsString:@"iCleaner"]) return false;
   if([path hasSuffix:@"xargs"] || [path hasSuffix:@"unzip2"] || [path hasSuffix:@"libsubstrate.dylib"] || [path hasSuffix:@"substrate.h"] || [path hasSuffix:@"recache"]) return false;
-  if(([path hasPrefix:@"/Library/MobileSubstrate/"] || [path hasPrefix:@"/usr/lib/TweakInject/"]) && ([path hasSuffix:@".dylib"] || [path hasSuffix:@".plist"])) {
+  if(([path hasPrefix:@"/Library/MobileSubstrate/"] || [path hasPrefix:@"/usr/lib/TweakInject/"]) && ([path hasSuffix:@".dylib"] || [path hasSuffix:@".plist"]) && !isLibHooker) {
     if([path isEqualToString:@"/Library/MobileSubstrate/MobileSubstrate.dylib"]) return false;
+    #ifdef DEBUG
+    HBLogError(@"ABPattern Requesting Tweak File %@ %d", path, index);
+    #endif
     if(!o[path]) {
       o[path] = @1;
       return true;
     } else if([o[path] isEqual:@1]) {
       o[path] = @2;
       return true;
-    } else if([o[path] isEqual:@2]) {
+    } else {
       return false;
     }
   }
