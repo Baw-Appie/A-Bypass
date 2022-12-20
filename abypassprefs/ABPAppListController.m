@@ -1,13 +1,7 @@
-#import <AppList/AppList.h>
 #import "ABPAppDetailController.h"
+#include "AppList.h"
 
 #define PREFERENCE_IDENTIFIER @"/var/mobile/Library/Preferences/com.rpgfarm.abypassprefs.plist"
-
-// from rpertich
-static NSInteger DictionaryTextComparator(id a, id b, void *context) {
-	return [[(__bridge NSDictionary *)context objectForKey:a] localizedCaseInsensitiveCompare:[(__bridge NSDictionary *)context objectForKey:b]];
-}
-
 #define LocalizeString(key) [[NSBundle bundleWithPath:@"/Library/PreferenceBundles/ABypassPrefs.bundle"] localizedStringForKey:key value:key table:@"prefs"]
 
 NSMutableDictionary *prefs;
@@ -15,33 +9,22 @@ NSMutableDictionary *prefs;
 @implementation ABPAppListController
 - (id)specifiers {
 	if(_specifiers == nil) {
-		// create "User Applications" group
 		NSMutableArray *specifiers = [[NSMutableArray alloc] init];
 
 		[specifiers addObject:[PSSpecifier preferenceSpecifierNamed:@"ABModules" target:self set:nil get:nil detail:nil cell:PSGroupCell edit:nil]];
 
-		// get all applications
-		ALApplicationList *applicationList = [ALApplicationList sharedApplicationList];
-		NSDictionary *applications = [applicationList applicationsFilteredUsingPredicate:[NSPredicate predicateWithFormat:@"isSystemApplication = FALSE"]];
-		NSMutableArray *displayIdentifiers = [[applications allKeys] mutableCopy];
-		
 		[self getPreference];
-		NSMutableArray *realIdentifiers = [NSMutableArray array];
-		for(NSString *key in [prefs allKeys]) {
-			if([displayIdentifiers containsObject:key] && [prefs[key] isEqual:@1]) [realIdentifiers addObject:key];
-		}
 
-		// sort them alphabetically
-		[realIdentifiers sortUsingFunction:DictionaryTextComparator context:(__bridge void *)applications];
-
-		// add each app to the list
-		for (NSString *displayIdentifier in realIdentifiers) {
-			PSSpecifier *specifier = [PSSpecifier preferenceSpecifierNamed:applications[displayIdentifier] target:nil set:nil get:nil detail:[ABPAppDetailController class] cell:PSLinkListCell edit:nil];
-			[specifier.properties setValue:displayIdentifier forKey:@"displayIdentifier"];
-
-			UIImage *icon = [applicationList iconOfSize:ALApplicationIconSizeSmall forDisplayIdentifier:displayIdentifier];
+		NSArray *applications = getAllInstalledApplications();
+		NSArray *sortDescriptor = @[[NSSortDescriptor sortDescriptorWithKey:@"localizedName" ascending:YES selector:@selector(localizedCaseInsensitiveCompare:)]];
+		applications = [applications sortedArrayUsingDescriptors:sortDescriptor];
+		applications = [applications filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"applicationType == %@", @"User"]];
+		for (LSApplicationProxy *application in applications) {
+			if(![prefs[application.bundleIdentifier] isEqual:@1]) continue;
+			UIImage* icon = [UIImage _applicationIconImageForBundleIdentifier:application.bundleIdentifier format:0 scale:[UIScreen mainScreen].scale];
+			PSSpecifier *specifier = [PSSpecifier preferenceSpecifierNamed:application.localizedName target:nil set:nil get:nil detail:[ABPAppDetailController class] cell:PSLinkListCell edit:nil];
+			[specifier.properties setValue:application.bundleIdentifier forKey:@"displayIdentifier"];
 			if (icon) [specifier setProperty:icon forKey:@"iconImage"];
-
 			[specifiers addObject:specifier];
 		}
 

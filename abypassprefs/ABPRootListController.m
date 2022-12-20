@@ -1,8 +1,7 @@
 #include "ABPRootListController.h"
 #include "ABPAppDetailController.h"
-#import <AppList/AppList.h>
 #import <objc/runtime.h>
-#import <MRYIPCCenter.h>
+#include "AppList.h"
 
 #define PREFERENCE_IDENTIFIER @"/var/mobile/Library/Preferences/com.rpgfarm.abypassprefs.plist"
 
@@ -11,10 +10,6 @@
 @end
 
 #define LocalizeString(key) [[NSBundle bundleWithPath:@"/Library/PreferenceBundles/ABypassPrefs.bundle"] localizedStringForKey:key value:key table:@"prefs"]
-
-static NSInteger DictionaryTextComparator(id a, id b, void *context) {
-	return [[(__bridge NSDictionary *)context objectForKey:a] localizedCaseInsensitiveCompare:[(__bridge NSDictionary *)context objectForKey:b]];
-}
 
 NSMutableDictionary *prefs;
 PSSpecifier *livePatchSpecifier;
@@ -131,19 +126,15 @@ PSSpecifier *livePatchToggleSpecifier;
 		[specifiers addObject:[PSSpecifier preferenceSpecifierNamed:LocalizeString(@"Installed Applications") target:self set:nil get:nil detail:nil cell:PSGroupCell edit:nil]];
 		[specifiers addObject:[PSSpecifier preferenceSpecifierNamed:LocalizeString(@"Advanced Settings") target:self set:nil get:nil detail:[ABPAppListController class] cell:PSLinkListCell edit:nil]];
 
-		ALApplicationList *applicationList = [ALApplicationList sharedApplicationList];
-		NSDictionary *applications = [applicationList applicationsFilteredUsingPredicate:[NSPredicate predicateWithFormat:@"isSystemApplication = FALSE"]];
-		NSMutableArray *displayIdentifiers = [[applications allKeys] mutableCopy];
-
-		[displayIdentifiers sortUsingFunction:DictionaryTextComparator context:(__bridge void *)applications];
-
-		for (NSString *displayIdentifier in displayIdentifiers) {
-			PSSpecifier *specifier = [PSSpecifier preferenceSpecifierNamed:applications[displayIdentifier] target:self set:@selector(setSwitch:forSpecifier:) get:@selector(getSwitch:) detail:nil cell:PSSwitchCell edit:nil];
-			[specifier.properties setValue:displayIdentifier forKey:@"displayIdentifier"];
-
-			UIImage *icon = [applicationList iconOfSize:ALApplicationIconSizeSmall forDisplayIdentifier:displayIdentifier];
+		NSArray *applications = getAllInstalledApplications();
+		NSArray *sortDescriptor = @[[NSSortDescriptor sortDescriptorWithKey:@"localizedName" ascending:YES selector:@selector(localizedCaseInsensitiveCompare:)]];
+		applications = [applications sortedArrayUsingDescriptors:sortDescriptor];
+		applications = [applications filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"applicationType == %@", @"User"]];
+		for (LSApplicationProxy *application in applications) {
+			UIImage* icon = [UIImage _applicationIconImageForBundleIdentifier:application.bundleIdentifier format:0 scale:[UIScreen mainScreen].scale];
+			PSSpecifier *specifier = [PSSpecifier preferenceSpecifierNamed:application.localizedName target:self set:@selector(setSwitch:forSpecifier:) get:@selector(getSwitch:) detail:nil cell:PSSwitchCell edit:nil];
+			[specifier.properties setValue:application.bundleIdentifier forKey:@"displayIdentifier"];
 			if (icon) [specifier setProperty:icon forKey:@"iconImage"];
-
 			[specifiers addObject:specifier];
 		}
 

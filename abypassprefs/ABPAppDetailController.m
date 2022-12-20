@@ -1,7 +1,6 @@
 #include "ABPAppDetailController.h"
-#import <AppList/AppList.h>
+#include "AppList.h"
 #import <objc/runtime.h>
-#import <MRYIPCCenter.h>
 
 #define PREFERENCE_IDENTIFIER @"/var/mobile/Library/Preferences/com.rpgfarm.abypassprefs.plist"
 #define LocalizeString(key) [[NSBundle bundleWithPath:@"/Library/PreferenceBundles/ABypassPrefs.bundle"] localizedStringForKey:key value:key table:@"prefs"]
@@ -17,18 +16,17 @@ NSString *displayIdentifier;
 		NSMutableArray *specifiers = [[NSMutableArray alloc] init];
 		displayIdentifier = self.specifier.properties[@"displayIdentifier"];
 
-		ALApplicationList *applicationList = [ALApplicationList sharedApplicationList];
-		NSDictionary *applications = [applicationList applicationsFilteredUsingPredicate:[NSPredicate predicateWithFormat:@"bundleIdentifier = %@", displayIdentifier]];
-
-		for(NSString *displayIdentifier in applications) {
+		NSArray *applications = getAllInstalledApplications();
+		applications = [applications filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"bundleIdentifier == %@", displayIdentifier]];
+		for (LSApplicationProxy *application in applications) {
 			[specifiers addObject:({
-				PSSpecifier *specifier = [PSSpecifier preferenceSpecifierNamed:applications[displayIdentifier] target:self set:nil get:nil detail:nil cell:PSGroupCell edit:nil];
+				PSSpecifier *specifier = [PSSpecifier preferenceSpecifierNamed:application.localizedName target:self set:nil get:nil detail:nil cell:PSGroupCell edit:nil];
 				specifier;
 			})];
 			[specifiers addObject:({
-				PSSpecifier *specifier = [PSSpecifier preferenceSpecifierNamed:applications[displayIdentifier] target:self set:nil get:nil detail:nil cell:PSStaticTextCell edit:nil];
-				[specifier.properties setValue:displayIdentifier forKey:@"displayIdentifier"];
-				UIImage *icon = [applicationList iconOfSize:ALApplicationIconSizeSmall forDisplayIdentifier:displayIdentifier];
+				PSSpecifier *specifier = [PSSpecifier preferenceSpecifierNamed:application.localizedName target:self set:nil get:nil detail:nil cell:PSStaticTextCell edit:nil];
+				[specifier.properties setValue:application.bundleIdentifier forKey:@"displayIdentifier"];
+				UIImage* icon = [UIImage _applicationIconImageForBundleIdentifier:application.bundleIdentifier format:0 scale:[UIScreen mainScreen].scale];
 				if (icon) [specifier setProperty:icon forKey:@"iconImage"];
 				specifier;
 			})];

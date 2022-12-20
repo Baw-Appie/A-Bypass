@@ -4,11 +4,10 @@ ARCHS = arm64 arm64e
 include $(THEOS)/makefiles/common.mk
 
 BUNDLE_NAME = ABypassPrefs
-ABypassPrefs_FILES = ABPRootListController.m ABPAppDetailController.m ABPAppListController.m
+ABypassPrefs_FILES = AppList.m ABPRootListController.m ABPAppDetailController.m ABPAppListController.m
 ABypassPrefs_INSTALL_PATH = /Library/PreferenceBundles
 ABypassPrefs_FRAMEWORKS = UIKit
-ABypassPrefs_PRIVATE_FRAMEWORKS = Preferences
-ABypassPrefs_LIBRARIES = applist mryipc
+ABypassPrefs_PRIVATE_FRAMEWORKS = Preferences CoreServices
 ABypassPrefs_CFLAGS = -DVERSION="@\"$(THEOS_PACKAGE_BASE_VERSION)\""
 
 include $(THEOS_MAKE_PATH)/bundle.mk
