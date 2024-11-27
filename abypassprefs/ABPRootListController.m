@@ -173,24 +173,24 @@ PSSpecifier *livePatchToggleSpecifier;
 	// 	[self presentViewController:alert animated:YES completion:nil];
  //    }
 
-	NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration defaultSessionConfiguration];
-	NSURLSession *defaultSession = [NSURLSession sessionWithConfiguration: defaultConfigObject delegate:nil delegateQueue:[NSOperationQueue mainQueue]];
-	NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://i.repo.co.kr/file/A-Bypass/getVersion?version=5"]];
-	[[defaultSession dataTaskWithRequest:request completionHandler:^(NSData *oResponseData, NSURLResponse *responseCode, NSError *error) {
-		if(error) {
-			self.livePatchVersion = @"-";
-		} else {
-			NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:oResponseData options:0 error:nil];
-			self.livePatchVersion = dic[@"livepatch"];
-		}
-		NSInteger index = [self indexOfSpecifier:livePatchSpecifier];
-		[self removeSpecifierAtIndex:index animated:true];
-		[self insertSpecifier:({
-			PSSpecifier *specifier = [PSSpecifier preferenceSpecifierNamed:LocalizeString(@"Live Patch Version") target:self set:nil get:@selector(getTitleValueCellDataForLivePatch:) detail:nil cell:PSTitleValueCell edit:nil];
-			[specifier setIdentifier:@"abliveversion"];
-			specifier;
-		}) atIndex:index animated:true];
-	}] resume];
+	// NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration defaultSessionConfiguration];
+	// NSURLSession *defaultSession = [NSURLSession sessionWithConfiguration: defaultConfigObject delegate:nil delegateQueue:[NSOperationQueue mainQueue]];
+	// NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://i.repo.co.kr/file/A-Bypass/getVersion?version=5"]];
+	// [[defaultSession dataTaskWithRequest:request completionHandler:^(NSData *oResponseData, NSURLResponse *responseCode, NSError *error) {
+	// 	if(error) {
+	// 		self.livePatchVersion = @"-";
+	// 	} else {
+	// 		NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:oResponseData options:0 error:nil];
+	// 		self.livePatchVersion = dic[@"livepatch"];
+	// 	}
+	// 	NSInteger index = [self indexOfSpecifier:livePatchSpecifier];
+	// 	[self removeSpecifierAtIndex:index animated:true];
+	// 	[self insertSpecifier:({
+	// 		PSSpecifier *specifier = [PSSpecifier preferenceSpecifierNamed:LocalizeString(@"Live Patch Version") target:self set:nil get:@selector(getTitleValueCellDataForLivePatch:) detail:nil cell:PSTitleValueCell edit:nil];
+	// 		[specifier setIdentifier:@"abliveversion"];
+	// 		specifier;
+	// 	}) atIndex:index animated:true];
+	// }] resume];
 }
 -(id)getTitleValueCellDataForLivePatch:(PSSpecifier *)specifier {
 	return self.livePatchVersion;
@@ -247,85 +247,85 @@ UIAlertController *alert;
 }
 
 -(void)checkUpdate:(PSSpecifier *)specifier {
-	alert = [UIAlertController alertControllerWithTitle:LocalizeString(@"Check for updates") message:[NSString stringWithFormat:@"%@\n\n\n", LocalizeString(@"Connect to Baw Repository File Share Service..")] preferredStyle:UIAlertControllerStyleAlert];
+	// alert = [UIAlertController alertControllerWithTitle:LocalizeString(@"Check for updates") message:[NSString stringWithFormat:@"%@\n\n\n", LocalizeString(@"Connect to Baw Repository File Share Service..")] preferredStyle:UIAlertControllerStyleAlert];
 
-	UIActivityIndicatorView* spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
-	[spinner startAnimating];
-	spinner.frame = CGRectMake(120, 80, 32, 32);
-	[alert.view addSubview:spinner];
-	[self presentViewController:alert animated:YES completion:nil];
+	// UIActivityIndicatorView* spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+	// [spinner startAnimating];
+	// spinner.frame = CGRectMake(120, 80, 32, 32);
+	// [alert.view addSubview:spinner];
+	// [self presentViewController:alert animated:YES completion:nil];
 
-	NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration defaultSessionConfiguration];
-	NSURLSession *defaultSession = [NSURLSession sessionWithConfiguration: defaultConfigObject delegate:nil delegateQueue:[NSOperationQueue mainQueue]];
-	NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://i.repo.co.kr/file/A-Bypass/getVersion?version=5"]];
-	[[defaultSession dataTaskWithRequest:request completionHandler:^(NSData *oResponseData, NSURLResponse *responseCode, NSError *firstError) {
-		NSString *checkError = nil;
-		if(firstError != nil) checkError = LocalizeString(@"The update server is not responding. Please try again later.");
-		else {
-			NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:oResponseData options:0 error:nil];
-			 if(![dic[@"version"] isEqualToString:VERSION]) checkError = LocalizeString(@"Latest version of A-Bypass is available. Please update A-Bypass from Cydia or Sileo");
-		}
-	    if(checkError) {
-	    	[alert dismissViewControllerAnimated:YES completion:^() {
-				alert = [UIAlertController alertControllerWithTitle:LocalizeString(@"Download updates") message:checkError preferredStyle:UIAlertControllerStyleAlert];
-				[alert addAction:[UIAlertAction actionWithTitle:LocalizeString(@"Cancel") style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {}]];
-				[self presentViewController:alert animated:YES completion:nil];
-			}];
-			return;
-	    }
-
-
+	// NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration defaultSessionConfiguration];
+	// NSURLSession *defaultSession = [NSURLSession sessionWithConfiguration: defaultConfigObject delegate:nil delegateQueue:[NSOperationQueue mainQueue]];
+	// NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://i.repo.co.kr/file/A-Bypass/getVersion?version=5"]];
+	// [[defaultSession dataTaskWithRequest:request completionHandler:^(NSData *oResponseData, NSURLResponse *responseCode, NSError *firstError) {
+	// 	NSString *checkError = nil;
+	// 	if(firstError != nil) checkError = LocalizeString(@"The update server is not responding. Please try again later.");
+	// 	else {
+	// 		NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:oResponseData options:0 error:nil];
+	// 		 if(![dic[@"version"] isEqualToString:VERSION]) checkError = LocalizeString(@"Latest version of A-Bypass is available. Please update A-Bypass from Cydia or Sileo");
+	// 	}
+	//     if(checkError) {
+	//     	[alert dismissViewControllerAnimated:YES completion:^() {
+	// 			alert = [UIAlertController alertControllerWithTitle:LocalizeString(@"Download updates") message:checkError preferredStyle:UIAlertControllerStyleAlert];
+	// 			[alert addAction:[UIAlertAction actionWithTitle:LocalizeString(@"Cancel") style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {}]];
+	// 			[self presentViewController:alert animated:YES completion:nil];
+	// 		}];
+	// 		return;
+	//     }
 
 
-		NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://i.repo.co.kr/file/A-Bypass/last_roleset"]];
-		[[defaultSession dataTaskWithRequest:request completionHandler:^(NSData *oResponseData, NSURLResponse *responseCode, NSError *error) {
-			NSString *res = [[NSString alloc] initWithData:oResponseData encoding:NSUTF8StringEncoding];
-			if([(NSHTTPURLResponse *)responseCode statusCode] != 200 || error != nil) {
-				[alert dismissViewControllerAnimated:YES completion:^() {
-					alert = [UIAlertController alertControllerWithTitle:LocalizeString(@"Check for updates") message:LocalizeString(@"Failed to connect to Baw Repository File Share Service. Please try again.") preferredStyle:UIAlertControllerStyleAlert];
-					[alert addAction:[UIAlertAction actionWithTitle:LocalizeString(@"Cancel") style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {}]];
-					[self presentViewController:alert animated:YES completion:nil];
-				}];
-			} else {
-				NSData *data = [NSData dataWithContentsOfFile:@"/var/mobile/Library/Preferences/ABPattern" options:0 error:nil];
-				NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-				if([res isEqualToString:dic[@"version"]]) {
-					[alert dismissViewControllerAnimated:YES completion:^() {
-						alert = [UIAlertController alertControllerWithTitle:LocalizeString(@"Download updates") message:[NSString stringWithFormat:LocalizeString(@"Already up to date. (%@)"), res] preferredStyle:UIAlertControllerStyleAlert];
-						[alert addAction:[UIAlertAction actionWithTitle:LocalizeString(@"Cancel") style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {}]];
-						[self presentViewController:alert animated:YES completion:nil];
-					}];
-					return;
-				}
+
+
+	// 	NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://i.repo.co.kr/file/A-Bypass/last_roleset"]];
+	// 	[[defaultSession dataTaskWithRequest:request completionHandler:^(NSData *oResponseData, NSURLResponse *responseCode, NSError *error) {
+	// 		NSString *res = [[NSString alloc] initWithData:oResponseData encoding:NSUTF8StringEncoding];
+	// 		if([(NSHTTPURLResponse *)responseCode statusCode] != 200 || error != nil) {
+	// 			[alert dismissViewControllerAnimated:YES completion:^() {
+	// 				alert = [UIAlertController alertControllerWithTitle:LocalizeString(@"Check for updates") message:LocalizeString(@"Failed to connect to Baw Repository File Share Service. Please try again.") preferredStyle:UIAlertControllerStyleAlert];
+	// 				[alert addAction:[UIAlertAction actionWithTitle:LocalizeString(@"Cancel") style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {}]];
+	// 				[self presentViewController:alert animated:YES completion:nil];
+	// 			}];
+	// 		} else {
+	// 			NSData *data = [NSData dataWithContentsOfFile:@"/var/mobile/Library/Preferences/ABPattern" options:0 error:nil];
+	// 			NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+	// 			if([res isEqualToString:dic[@"version"]]) {
+	// 				[alert dismissViewControllerAnimated:YES completion:^() {
+	// 					alert = [UIAlertController alertControllerWithTitle:LocalizeString(@"Download updates") message:[NSString stringWithFormat:LocalizeString(@"Already up to date. (%@)"), res] preferredStyle:UIAlertControllerStyleAlert];
+	// 					[alert addAction:[UIAlertAction actionWithTitle:LocalizeString(@"Cancel") style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {}]];
+	// 					[self presentViewController:alert animated:YES completion:nil];
+	// 				}];
+	// 				return;
+	// 			}
 				
-				NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://i.repo.co.kr/file/A-Bypass/roleset/%@.json", res]]];
-				[[defaultSession dataTaskWithRequest:request completionHandler:^(NSData *updateData, NSURLResponse *responseCode2, NSError *error2) {
+	// 			NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://i.repo.co.kr/file/A-Bypass/roleset/%@.json", res]]];
+	// 			[[defaultSession dataTaskWithRequest:request completionHandler:^(NSData *updateData, NSURLResponse *responseCode2, NSError *error2) {
 
-					if([(NSHTTPURLResponse *)responseCode2 statusCode] != 200 || error2 != nil) {
+	// 				if([(NSHTTPURLResponse *)responseCode2 statusCode] != 200 || error2 != nil) {
 
-						[alert dismissViewControllerAnimated:YES completion:^() {
-							alert = [UIAlertController alertControllerWithTitle:LocalizeString(@"Download updates") message:[NSString stringWithFormat:LocalizeString(@"Failed to download update. Please try again. (%@)"), res] preferredStyle:UIAlertControllerStyleAlert];
-							[alert addAction:[UIAlertAction actionWithTitle:LocalizeString(@"Cancel") style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {}]];
-							[self presentViewController:alert animated:YES completion:nil];
-						}];
+	// 					[alert dismissViewControllerAnimated:YES completion:^() {
+	// 						alert = [UIAlertController alertControllerWithTitle:LocalizeString(@"Download updates") message:[NSString stringWithFormat:LocalizeString(@"Failed to download update. Please try again. (%@)"), res] preferredStyle:UIAlertControllerStyleAlert];
+	// 						[alert addAction:[UIAlertAction actionWithTitle:LocalizeString(@"Cancel") style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {}]];
+	// 						[self presentViewController:alert animated:YES completion:nil];
+	// 					}];
 					
-					} else {
-						NSError *errorr = nil;
-						[[[NSString alloc] initWithData:updateData encoding:NSUTF8StringEncoding] writeToFile:@"/var/mobile/Library/Preferences/ABPattern" atomically:YES encoding:NSUTF8StringEncoding error:&errorr];
+	// 				} else {
+	// 					NSError *errorr = nil;
+	// 					[[[NSString alloc] initWithData:updateData encoding:NSUTF8StringEncoding] writeToFile:@"/var/mobile/Library/Preferences/ABPattern" atomically:YES encoding:NSUTF8StringEncoding error:&errorr];
 						
-						NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:updateData options:0 error:nil];
-						[alert dismissViewControllerAnimated:YES completion:^() {
-							alert = [UIAlertController alertControllerWithTitle:LocalizeString(@"Check for updates") message:[NSString stringWithFormat:LocalizeString(@"A-Bypass engine ruleset has been updated. (%@)"), dic[@"version"]] preferredStyle:UIAlertControllerStyleAlert];
-							[alert addAction:[UIAlertAction actionWithTitle:LocalizeString(@"Done") style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {}]];
-							[self reloadSpecifiers];
-							[self presentViewController:alert animated:YES completion:nil];
-						}];
-					}
-				}] resume];
-			}
-		}] resume];
+	// 					NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:updateData options:0 error:nil];
+	// 					[alert dismissViewControllerAnimated:YES completion:^() {
+	// 						alert = [UIAlertController alertControllerWithTitle:LocalizeString(@"Check for updates") message:[NSString stringWithFormat:LocalizeString(@"A-Bypass engine ruleset has been updated. (%@)"), dic[@"version"]] preferredStyle:UIAlertControllerStyleAlert];
+	// 						[alert addAction:[UIAlertAction actionWithTitle:LocalizeString(@"Done") style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {}]];
+	// 						[self reloadSpecifiers];
+	// 						[self presentViewController:alert animated:YES completion:nil];
+	// 					}];
+	// 				}
+	// 			}] resume];
+	// 		}
+	// 	}] resume];
 
-	}] resume];
+	// }] resume];
 
 }
 

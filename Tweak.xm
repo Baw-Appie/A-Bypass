@@ -126,35 +126,6 @@ extern "C" CFPropertyListRef MGCopyAnswer(CFStringRef property);
 %new
 -(NSDictionary *)handleUpdateLicense:(NSDictionary *)userInfo {
   NSError *error = nil;
-  #ifndef DEBUG
-  if([userInfo[@"type"] isEqual:@1]) {
-    NSString *server = @"i.repo.co.kr";
-    NSMutableDictionary *plistDict = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.rpgfarm.abypassprefs.plist"];
-    if(plistDict[@"licenseServer"]) server = plistDict[@"licenseServer"];
-    NSString *udid = (__bridge NSString *)MGCopyAnswer(CFSTR("UniqueDeviceID"));
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
-    [request setHTTPMethod:@"GET"];
-    [request setURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://%@/file/A-Bypass/getLicense?udid=%@&bundleID=%@&version=5", server, udid, userInfo[@"identifier"]]]];
-    [request setTimeoutInterval:3.0];
-    NSHTTPURLResponse *responseCode = nil;
-    #pragma clang diagnostic push
-    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    NSData *oResponseData = [NSURLConnection sendSynchronousRequest:request returningResponse:&responseCode error:&error];
-    #pragma clang diagnostic pop
-    if(isXinaA12) {
-      NSMutableData *updatedData = [oResponseData mutableCopy];
-      [updatedData replaceBytesInRange:[updatedData rangeOfData:[@"/Library/BawAppie" dataUsingEncoding:NSUTF8StringEncoding] options:0 range:NSMakeRange(0, [updatedData length])] withBytes:[[@"/var/LIY/BawAppie" dataUsingEncoding:NSUTF8StringEncoding] bytes]];
-      [updatedData replaceBytesInRange:[updatedData rangeOfData:[@"/Library/Frameworks/CydiaSubstrate" dataUsingEncoding:NSUTF8StringEncoding] options:0 range:NSMakeRange(0, [updatedData length])] withBytes:[[@"/var/LIY/Frameworks/CydiaSubstrate" dataUsingEncoding:NSUTF8StringEncoding] bytes]];
-      oResponseData = updatedData;
-      // if(error) return @{@"success": @0, @"message": [error localizedDescription], @"errno": @3};
-    }
-    if(error) return @{@"success": @0, @"message": [error localizedDescription], @"errno": @1};
-    [oResponseData writeToFile:ABLoaderPath options:0 error:&error];
-    if(error) return @{@"success": @0, @"message": [error localizedDescription], @"errno": @2};
-  } else if([userInfo[@"type"] isEqual:@2]) {
-    [fileManager removeItemAtPath:ABLoaderPath error:&error];
-  } else
-  #endif
   if([userInfo[@"type"] isEqual:@3]) {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^() {
       dispatch_async(dispatch_get_main_queue(), ^() {

@@ -11,12 +11,6 @@ TWEAK_NAME = !ABypass2
 !ABypass2_FILES = Tweak.xm ABWindow.m
 !ABypass2_LIBRARIES = mryipc MobileGestalt
 
-
-export STRCRY = 1
-export INDIBRAN = 1
-!ABypass2_CFLAGS = -Xclang -load -Xclang /Library/Developer/HikariCore/libLLVMObfuscationHook.dylib
-
-
 include $(THEOS_MAKE_PATH)/tweak.mk
 
 # after-install::
